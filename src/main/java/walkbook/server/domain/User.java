@@ -35,7 +35,7 @@ public class User {
     private Gender gender;
 
     @Column(name = "age")
-    private int age;
+    private String age;
 
     @Column(name = "location")
     private String location;
