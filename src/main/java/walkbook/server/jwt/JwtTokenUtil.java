@@ -41,7 +41,7 @@ public class JwtTokenUtil  implements Serializable {
     }
 
     public String generateToken(Authentication authentication) {
-        UserDetails userDetails = (UserDetails)  authentication.getPrincipal();
+        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
         return Jwts.builder()
                 .setSubject(userDetails.getUsername())
                 .setExpiration(new Date(System.currentTimeMillis() + 5 * 1000))
