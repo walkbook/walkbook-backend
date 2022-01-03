@@ -3,7 +3,9 @@ package walkbook.server.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import walkbook.server.jwt.JwtTokenUtil;
 import walkbook.server.payload.LoginRequest;
@@ -17,17 +19,22 @@ import javax.validation.Valid;
 @RequestMapping("/api")
 public class JwtAuthenticationController {
     @Autowired
+    AuthenticationManager authenticationManager;
+    @Autowired
     private JwtTokenUtil jwtTokenUtil;
     @Autowired
     private JwtUserDetailsService jwtUserDetailsService;
 
     @PostMapping("/login")
     public ResponseEntity<TokenResponse> createAuthenticationToken(@Valid @RequestBody LoginRequest loginRequest) throws Exception {
-        final UserDetails userDetails = jwtUserDetailsService
-                .loadUserByUsername(loginRequest.getUsername());
-
-        final String token = jwtTokenUtil.generateToken(userDetails);
-
+        Authentication authentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(
+                        loginRequest.getUsername(),
+                        loginRequest.getPassword()
+                )
+        );
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+        final String token = jwtTokenUtil.generateToken(authentication);
         return ResponseEntity.ok(new TokenResponse(token));
     }
 }

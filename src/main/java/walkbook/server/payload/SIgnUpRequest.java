@@ -17,7 +17,7 @@ public class SIgnUpRequest {
 
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     @NotNull
-    @Size(min = 3, max = 20)
+    @Size(min = 3, max = 100)
     private String password;
 
     @NotNull
