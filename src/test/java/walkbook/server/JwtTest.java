@@ -13,8 +13,8 @@ import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.transaction.annotation.Transactional;
 import walkbook.server.domain.User;
 import walkbook.server.enums.Gender;
-import walkbook.server.payload.LoginRequest;
-import walkbook.server.payload.SIgnUpRequest;
+import walkbook.server.dto.sign.SignInRequest;
+import walkbook.server.dto.sign.SIgnUpRequest;
 import walkbook.server.repository.UserRepository;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -104,7 +104,7 @@ public class JwtTest {
     @Test
     public void 로그인_성공() throws Exception{
         //given
-        String object = objectMapper.writeValueAsString(LoginRequest.builder()
+        String object = objectMapper.writeValueAsString(SignInRequest.builder()
                 .username("admin")
                 .password("admin")
                 .build());
@@ -125,7 +125,7 @@ public class JwtTest {
     @Test
     public void 로그인_실패() throws Exception{
         //given
-        String object = objectMapper.writeValueAsString(LoginRequest.builder()
+        String object = objectMapper.writeValueAsString(SignInRequest.builder()
                 .username("tester")
                 .password("tester")
                 .build());

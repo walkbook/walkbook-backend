@@ -1,4 +1,4 @@
-package walkbook.server.payload;
+package walkbook.server.dto;
 
 import lombok.*;
 
@@ -6,7 +6,6 @@ import lombok.*;
 @Setter
 @Builder
 public class TokenResponse {
-    private final String tokenType = "Bearer";
     private final String token;
 
     public TokenResponse(String token){

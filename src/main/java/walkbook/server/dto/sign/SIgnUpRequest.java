@@ -1,10 +1,7 @@
-package walkbook.server.payload;
+package walkbook.server.dto.sign;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 import walkbook.server.enums.Gender;
-
-import javax.validation.constraints.*;
 
 @Getter
 @Setter
@@ -12,22 +9,11 @@ import javax.validation.constraints.*;
 @AllArgsConstructor
 @NoArgsConstructor
 public class SIgnUpRequest {
-    @NotNull
-    @Size(min = 3, max = 20)
     private String username;
-
-    @NotNull
-    @Size(min = 3, max = 100)
     private String password;
-
-    @Size(min = 3, max = 20)
     private String nickname;
-
     private Gender gender;
-
     private String age;
-
     private String location;
-
     private String introduction;
 }

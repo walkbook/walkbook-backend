@@ -1,63 +1,66 @@
 package walkbook.server.jwt;
 
 import io.jsonwebtoken.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
+import walkbook.server.service.JwtUserDetailsService;
 
+import javax.annotation.PostConstruct;
+import javax.servlet.http.HttpServletRequest;
 import java.io.Serializable;
+import java.util.Base64;
 import java.util.Date;
-import java.util.function.Function;
 
+@RequiredArgsConstructor
 @Component
 public class JwtTokenUtil  implements Serializable {
-    private final Logger logger = LoggerFactory.getLogger(JwtTokenUtil.class);
 
-    public static final long JWT_TOKEN_VALIDITY = 5 * 60 * 60;
     @Value("${jwt.secret}")
     private String secret;
 
-    public String getUsernameFromToken(String token) {
-        return getClaimFromToken(token, Claims::getSubject);
-    }
+    public static final long JWT_TOKEN_VALIDITY = 5 * 60 * 60;
 
-    public <T> T getClaimFromToken(String token, Function<Claims, T> claimsResolver) {
-        final Claims claims = getAllClaimsFromToken(token);
-        return claimsResolver.apply(claims);
-    }
+    private final JwtUserDetailsService jwtUserDetailsService;
 
-    private Claims getAllClaimsFromToken(String token) {
-        return Jwts.parser().setSigningKey(secret).parseClaimsJws(token).getBody();
+    @PostConstruct
+    protected  void init(){
+        secret = Base64.getEncoder().encodeToString(secret.getBytes());
     }
 
     public String generateToken(Authentication authentication) {
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+        Date now = new Date();
         return Jwts.builder()
                 .setSubject(userDetails.getUsername())
-                .setExpiration(new Date(System.currentTimeMillis() + 5 * 1000))
-                .signWith(SignatureAlgorithm.HS512, secret)
+                .setIssuedAt(now)
+                .setExpiration(new Date(System.currentTimeMillis() + JWT_TOKEN_VALIDITY))
+                .signWith(SignatureAlgorithm.HS256, secret)
                 .compact();
+    }
+
+    public Authentication getAuthentication (String token) {
+        UserDetails userDetails = jwtUserDetailsService.loadUserByUsername(this.getUsernameFromToken(token));
+        return new UsernamePasswordAuthenticationToken( userDetails, null, userDetails.getAuthorities());
+    }
+
+    public String getUsernameFromToken(String token) {
+        return Jwts.parser().setSigningKey(secret).parseClaimsJws(token).getBody().getSubject();
+    }
+
+    public String resolveToken(HttpServletRequest request) {
+        return request.getHeader("X-AUTH-TOKEN");
     }
 
     public Boolean validateToken(String token) {
         try {
-            Jwts.parser().setSigningKey(secret).parseClaimsJws(token);
-            logger.info("validate 실행");
-            return true;
-        } catch (SignatureException ex) {
-            logger.error("잘못된 JWT 서명입니다.");
-        } catch (MalformedJwtException ex) {
-            logger.error("잘못된 JWT 토큰입니다.");
-        } catch (ExpiredJwtException e) {
-            logger.error("만료된 JWT 토큰입니다.");
-        } catch (UnsupportedJwtException e) {
-            logger.error("지원되지 않는 JWT 토큰입니다.");
-        } catch (IllegalArgumentException e) {
-            logger.error("JWT 토큰이 잘못되었습니다.");
+            Jws<Claims> claimsJws = Jwts.parser().setSigningKey(secret).parseClaimsJws(token);
+            return !claimsJws.getBody().getExpiration().before(new Date());
+        } catch (Exception e) {
+            return  false;
         }
-        return false;
     }
 }
