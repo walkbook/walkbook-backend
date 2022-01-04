@@ -13,6 +13,7 @@ import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.transaction.annotation.Transactional;
 import walkbook.server.domain.User;
 import walkbook.server.enums.Gender;
+import walkbook.server.payload.LoginRequest;
 import walkbook.server.payload.SIgnUpRequest;
 import walkbook.server.repository.UserRepository;
 
@@ -51,7 +52,7 @@ public class JwtTest {
     }
 
     @Test
-    public void 회원가입_성공() throws Exception{
+    public void 회원가입_성공() throws Exception {
         //given
         String object = objectMapper.writeValueAsString(SIgnUpRequest.builder()
                 .username("tester")
@@ -60,9 +61,8 @@ public class JwtTest {
                 .gender(Gender.F)
                 .age("25")
                 .location("서울시 용산구")
-                .introduction("gg")
+                .introduction("테스트")
                 .build());
-        System.out.println(object);
         //when
         ResultActions actions = mockMvc.perform(post("/api/signup")
                 .content(object)
@@ -77,30 +77,69 @@ public class JwtTest {
     }
 
     @Test
-    public void 회원가입_실패_중복회원() {
+    public void 회원가입_실패_중복회원() throws Exception {
         //given
-
+        String object = objectMapper.writeValueAsString(SIgnUpRequest.builder()
+                .username("admin")
+                .password(passwordEncoder.encode("admin"))
+                .nickname("admin")
+                .gender(Gender.F)
+                .age("20")
+                .location("서울시 강남구")
+                .introduction("중복테스트")
+                .build());
         //when
+        ResultActions actions = mockMvc.perform(post("/api/signup")
+                .content(object)
+                .accept(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON));
 
         //then
+        actions
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.success").value(false));
     }
 
     @Test
-    public void 로그인_성공() {
+    public void 로그인_성공() throws Exception{
         //given
+        String object = objectMapper.writeValueAsString(LoginRequest.builder()
+                .username("admin")
+                .password("admin")
+                .build());
 
         //when
+        ResultActions actions = mockMvc.perform(post("/api/signin")
+                .content(object)
+                .accept(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON));
 
         //then
+        actions
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.tokenType").value("Bearer"));
     }
 
     @Test
-    public void 로그인_실패() {
+    public void 로그인_실패() throws Exception{
         //given
+        String object = objectMapper.writeValueAsString(LoginRequest.builder()
+                .username("tester")
+                .password("tester")
+                .build());
 
         //when
+        ResultActions actions = mockMvc.perform(post("/api/signin")
+                .content(object)
+                .accept(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON));
 
         //then
+        actions
+                .andDo(print())
+                .andExpect(status().isForbidden());
     }
 
 }
