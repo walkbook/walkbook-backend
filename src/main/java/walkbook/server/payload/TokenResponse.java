@@ -5,8 +5,11 @@ import lombok.*;
 @Getter
 @Setter
 @Builder
-@AllArgsConstructor
-@NoArgsConstructor
 public class TokenResponse {
-    private String token;
+    private final String tokenType = "Bearer";
+    private final String token;
+
+    public TokenResponse(String token){
+        this.token = token;
+    }
 }

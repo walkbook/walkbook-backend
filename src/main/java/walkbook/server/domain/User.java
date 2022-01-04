@@ -3,6 +3,7 @@ package walkbook.server.domain;
 import javax.persistence.*;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 import walkbook.server.enums.Gender;
 
@@ -23,7 +24,7 @@ public class User {
     @Column(name = "username", length = 20, unique = true)
     private String username;
 
-    @JsonIgnore
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     @Column(name = "password", length = 100)
     private String password;
 

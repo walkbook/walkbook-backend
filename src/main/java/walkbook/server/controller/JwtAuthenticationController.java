@@ -16,7 +16,6 @@ import walkbook.server.payload.LoginRequest;
 import walkbook.server.payload.SIgnUpRequest;
 import walkbook.server.payload.TokenResponse;
 import walkbook.server.repository.UserRepository;
-import walkbook.server.service.JwtUserDetailsService;
 
 import javax.validation.Valid;
 
@@ -34,7 +33,7 @@ public class JwtAuthenticationController {
     PasswordEncoder passwordEncoder;
 
     @PostMapping("/signin")
-    public ResponseEntity<TokenResponse> createAuthenticationToken(@Valid @RequestBody LoginRequest loginRequest) throws Exception {
+    public ResponseEntity<Object> createAuthenticationToken(@Valid @RequestBody LoginRequest loginRequest) {
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         loginRequest.getUsername(),
@@ -47,9 +46,9 @@ public class JwtAuthenticationController {
     }
 
     @PostMapping("/signup")
-    public ResponseEntity<?> registerUser(@Valid @RequestBody SIgnUpRequest sIgnUpRequest) {
+    public ResponseEntity<Object> registerUser(@Valid @RequestBody SIgnUpRequest sIgnUpRequest) {
         if(userRepository.existsByUsername(sIgnUpRequest.getUsername())) {
-            return new ResponseEntity(new ApiResponse(false, "Username is already taken!"),
+            return new ResponseEntity<>(new ApiResponse(false, "Username is already taken!"),
                     HttpStatus.BAD_REQUEST);
         }
         User user = User.builder()

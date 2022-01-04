@@ -1,8 +1,8 @@
 package walkbook.server.jwt;
 
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -14,16 +14,14 @@ import java.util.function.Function;
 
 @Component
 public class JwtTokenUtil  implements Serializable {
+    private final Logger logger = LoggerFactory.getLogger(JwtTokenUtil.class);
+
     public static final long JWT_TOKEN_VALIDITY = 5 * 60 * 60;
     @Value("${jwt.secret}")
     private String secret;
 
     public String getUsernameFromToken(String token) {
         return getClaimFromToken(token, Claims::getSubject);
-    }
-
-    public Date getExpirationDateFromToken(String token) {
-        return getClaimFromToken(token, Claims::getExpiration);
     }
 
     public <T> T getClaimFromToken(String token, Function<Claims, T> claimsResolver) {
@@ -35,11 +33,6 @@ public class JwtTokenUtil  implements Serializable {
         return Jwts.parser().setSigningKey(secret).parseClaimsJws(token).getBody();
     }
 
-    private Boolean isTokenExpired(String token) {
-        final Date expiration = getExpirationDateFromToken(token);
-        return expiration.before(new Date());
-    }
-
     public String generateToken(Authentication authentication) {
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();
         return Jwts.builder()
@@ -49,8 +42,22 @@ public class JwtTokenUtil  implements Serializable {
                 .compact();
     }
 
-    public Boolean validateToken(String token, UserDetails userDetails) {
-        final String username = getUsernameFromToken(token);
-        return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
+    public Boolean validateToken(String token) {
+        try {
+            Jwts.parser().setSigningKey(secret).parseClaimsJws(token);
+            logger.info("validate 실행");
+            return true;
+        } catch (SignatureException ex) {
+            logger.error("잘못된 JWT 서명입니다.");
+        } catch (MalformedJwtException ex) {
+            logger.error("잘못된 JWT 토큰입니다.");
+        } catch (ExpiredJwtException e) {
+            logger.error("만료된 JWT 토큰입니다.");
+        } catch (UnsupportedJwtException e) {
+            logger.error("지원되지 않는 JWT 토큰입니다.");
+        } catch (IllegalArgumentException e) {
+            logger.error("JWT 토큰이 잘못되었습니다.");
+        }
+        return false;
     }
 }
