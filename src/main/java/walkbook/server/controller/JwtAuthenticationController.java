@@ -24,7 +24,7 @@ import java.util.Optional;
 
 @RestController
 @CrossOrigin
-@RequestMapping("/api")
+@RequestMapping("/api/user")
 public class JwtAuthenticationController {
     @Autowired
     AuthenticationManager authenticationManager;
@@ -53,7 +53,7 @@ public class JwtAuthenticationController {
         return responseService.getSingleResult(signupId);
     }
 
-    @GetMapping("/user/{userId}")
+    @GetMapping("/{userId}")
     public SingleResult<UserResponse> getUserInfo(@PathVariable Long userId){
         return responseService.getSingleResult(userService.findById(userId));
     }
