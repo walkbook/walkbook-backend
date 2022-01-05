@@ -1,4 +1,4 @@
-package walkbook.server.jwt;
+package walkbook.server.config;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -13,16 +13,19 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
+import walkbook.server.advice.exception.CAccessDeniedException;
+import walkbook.server.advice.exception.CAuthenticationEntryPointException;
+import walkbook.server.jwt.JwtRequestFilter;
 
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 @Configuration
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     @Autowired
-    private JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
+    private CAuthenticationEntryPointException cAuthenticationEntryPointException;
 
     @Autowired
-    private JwtAccessDeniedHandler jwtAccessDeniedHandler;
+    private CAccessDeniedException cAccessDeniedException;
 
     @Autowired
     private JwtRequestFilter jwtRequestFilter;
@@ -49,8 +52,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
                 .and()
                 .exceptionHandling()
-                .authenticationEntryPoint(jwtAuthenticationEntryPoint)
-                .accessDeniedHandler(jwtAccessDeniedHandler)
+                .authenticationEntryPoint(cAuthenticationEntryPointException)
+                .accessDeniedHandler(cAccessDeniedException)
 
                 .and()
                 .headers()

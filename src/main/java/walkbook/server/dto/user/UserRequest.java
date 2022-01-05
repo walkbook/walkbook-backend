@@ -1,7 +1,9 @@
-package walkbook.server.dto.sign;
+package walkbook.server.dto.user;
 
-import lombok.*;
-import org.springframework.security.crypto.password.PasswordEncoder;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import walkbook.server.domain.Gender;
 import walkbook.server.domain.User;
 
@@ -9,19 +11,18 @@ import walkbook.server.domain.User;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class SIgnUpRequest {
+public class UserRequest {
+
     private String username;
-    private String password;
     private String nickname;
     private Gender gender;
     private String age;
     private String location;
     private String introduction;
 
-    public User toEntity(PasswordEncoder passwordEncoder) {
+    public User toEntity() {
         return User.builder()
                 .username(username)
-                .password(passwordEncoder.encode(password))
                 .nickname(nickname)
                 .gender(gender)
                 .age(age)

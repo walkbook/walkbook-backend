@@ -1,4 +1,4 @@
-package walkbook.server.enums;
+package walkbook.server.domain;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

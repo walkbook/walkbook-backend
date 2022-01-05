@@ -15,6 +15,8 @@ import walkbook.server.dto.sign.SIgnUpRequest;
 import walkbook.server.model.response.CommonResult;
 import walkbook.server.model.response.SingleResult;
 import walkbook.server.repository.UserRepository;
+import walkbook.server.service.SignService;
+import walkbook.server.service.UserService;
 import walkbook.server.service.response.ResponseService;
 
 import javax.validation.Valid;
@@ -34,54 +36,25 @@ public class JwtAuthenticationController {
     PasswordEncoder passwordEncoder;
     @Autowired
     ResponseService responseService;
+    @Autowired
+    SignService signService;
+    @Autowired
+    UserService userService;
 
     @PostMapping("/signin")
     public SingleResult<String> createAuthenticationToken(@Valid @RequestBody SignInRequest signInRequest) {
-        Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                        signInRequest.getUsername(),
-                        signInRequest.getPassword()
-                )
-        );
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-        final String token = jwtTokenUtil.generateToken(authentication);
+        final String token = signService.signin(signInRequest);
         return responseService.getSingleResult(token);
     }
 
     @PostMapping("/signup")
     public CommonResult registerUser(@Valid @RequestBody SIgnUpRequest sIgnUpRequest) {
-        if(userRepository.existsByUsername(sIgnUpRequest.getUsername())) {
-            return responseService.getFailResult(-1, "Username is already taken!");
-        }
-        User user = User.builder()
-                .username(sIgnUpRequest.getUsername())
-                .password(passwordEncoder.encode(sIgnUpRequest.getPassword()))
-                .nickname(sIgnUpRequest.getNickname())
-                .gender(sIgnUpRequest.getGender())
-                .age(sIgnUpRequest.getAge())
-                .location(sIgnUpRequest.getLocation())
-                .introduction(sIgnUpRequest.getIntroduction())
-                .build();
-
-        Long signupId = userRepository.save(user).getUserId();
+        Long signupId = signService.signup(sIgnUpRequest);
         return responseService.getSingleResult(signupId);
     }
 
     @GetMapping("/user/{userId}")
     public SingleResult<UserResponse> getUserInfo(@PathVariable Long userId){
-        Optional<User> user = userRepository.findById(userId);
-        if (user.isPresent()){
-            UserResponse userResponse = UserResponse.builder()
-                    .userId(user.get().getUserId())
-                    .username(user.get().getUsername())
-                    .nickname(user.get().getNickname())
-                    .gender(user.get().getGender())
-                    .age(user.get().getAge())
-                    .location(user.get().getLocation())
-                    .introduction(user.get().getIntroduction())
-                    .build();
-            return responseService.getSingleResult(userResponse);
-        }
-        else throw new RuntimeException();
+        return responseService.getSingleResult(userService.findById(userId));
     }
 }

@@ -5,7 +5,6 @@ import javax.persistence.*;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
-import walkbook.server.enums.Gender;
 
 @Entity
 @Table (name = "user")
@@ -17,7 +16,7 @@ import walkbook.server.enums.Gender;
 public class User {
     @JsonIgnore
     @Id
-    @Column(name = "user_id")
+    @Column(name = "userid")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long userId;
 
