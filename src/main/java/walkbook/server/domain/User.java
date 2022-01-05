@@ -7,7 +7,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 
 @Entity
-@Table (name = "user")
+@Table (name = "users")
 @Getter
 @Setter
 @Builder
