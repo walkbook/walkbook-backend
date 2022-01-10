@@ -31,3 +31,8 @@ dependencies {
 test {
 	useJUnitPlatform()
 }
+
+bootJar {
+	archivesBaseName='walkbook'
+	archiveFileName='walkbook.jar'
+}
