@@ -17,7 +17,7 @@ import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 
 @Configuration
-public class MessageConfiguration implements WebMvcConfigurer {
+public class MessageConfig implements WebMvcConfigurer {
 
     @Bean
     public LocaleResolver localeResolver() {

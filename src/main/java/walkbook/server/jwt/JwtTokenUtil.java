@@ -7,7 +7,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
-import walkbook.server.service.JwtUserDetailsService;
+import walkbook.server.service.UserDetailsServiceImpl;
 
 import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpServletRequest;
@@ -24,7 +24,7 @@ public class JwtTokenUtil  implements Serializable {
 
     public static final long JWT_TOKEN_VALIDITY = 5 * 60 * 60;
 
-    private final JwtUserDetailsService jwtUserDetailsService;
+    private final UserDetailsServiceImpl userDetailsServiceImpl;
 
     @PostConstruct
     protected  void init(){
@@ -43,7 +43,7 @@ public class JwtTokenUtil  implements Serializable {
     }
 
     public Authentication getAuthentication (String token) {
-        UserDetails userDetails = jwtUserDetailsService.loadUserByUsername(this.getUsernameFromToken(token));
+        UserDetails userDetails = userDetailsServiceImpl.loadUserByUsername(this.getUsernameFromToken(token));
         return new UsernamePasswordAuthenticationToken( userDetails, null, userDetails.getAuthorities());
     }
 
