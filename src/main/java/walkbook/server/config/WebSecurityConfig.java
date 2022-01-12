@@ -65,6 +65,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/api/user/signin").permitAll()
                 .antMatchers("/api/user/signup").permitAll()
                 .antMatchers("/api/user/{userId}").permitAll()
+                .antMatchers("/daum.html").permitAll()
                 .anyRequest().authenticated()
 
                 .and()
