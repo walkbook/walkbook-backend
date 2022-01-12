@@ -1,11 +1,11 @@
-package walkbook.server.model.response;
+package walkbook.server.dto;
 
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Setter
-public class CommonResult {
+public class CommonResponse {
     private boolean success;
     private int code;
     private String msg;

@@ -10,7 +10,7 @@ loginFailed:
   msg: "가입하지 않은 아이디이거나, 잘못된 비밀번호입니다."
 signupFailed:
   code: "-1002"
-  msg: "이미 가입된 이메일입니다."
+  msg: "이미 가입된 아이디입니다."
 authenticationEntrypoint:
   code: "-1003"
   msg: "해당 리소스에 접근하기 위한 권한이 없습니다."

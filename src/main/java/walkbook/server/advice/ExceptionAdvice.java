@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import walkbook.server.advice.exception.*;
-import walkbook.server.model.response.CommonResult;
+import walkbook.server.dto.CommonResponse;
 import walkbook.server.service.response.ResponseService;
 
 import javax.servlet.http.HttpServletRequest;
@@ -27,7 +27,7 @@ public class ExceptionAdvice {
      */
     @ExceptionHandler(Exception.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    protected CommonResult defaultException(HttpServletRequest request, Exception e) {
+    protected CommonResponse defaultException(HttpServletRequest request, Exception e) {
         log.info(String.valueOf(e));
         return responseService.getFailResult
                 (Integer.parseInt(getMessage("unKnown.code")), getMessage("unKnown.msg"));
@@ -39,7 +39,7 @@ public class ExceptionAdvice {
      */
     @ExceptionHandler(CUserNotFoundException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    protected CommonResult userNotFoundException(HttpServletRequest request, CUserNotFoundException e) {
+    protected CommonResponse userNotFoundException(HttpServletRequest request, CUserNotFoundException e) {
         return responseService.getFailResult(
                 Integer.parseInt(getMessage("userNotFound.code")), getMessage("userNotFound.msg")
         );
@@ -51,7 +51,7 @@ public class ExceptionAdvice {
      */
     @ExceptionHandler(CLoginFailedException.class)
     @ResponseStatus(HttpStatus.CONFLICT)
-    protected CommonResult loginFailedException(HttpServletRequest request, CLoginFailedException e) {
+    protected CommonResponse loginFailedException(HttpServletRequest request, CLoginFailedException e) {
         return responseService.getFailResult(
                 Integer.parseInt(getMessage("loginFailed.code")), getMessage("loginFailed.msg")
         );
@@ -63,7 +63,7 @@ public class ExceptionAdvice {
      */
     @ExceptionHandler(CSignupFailedException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    protected CommonResult signupFailedException(HttpServletRequest request, CSignupFailedException e) {
+    protected CommonResponse signupFailedException(HttpServletRequest request, CSignupFailedException e) {
         return responseService.getFailResult(
                 Integer.parseInt(getMessage("signupFailed.code")), getMessage("signupFailed.msg")
         );
@@ -75,7 +75,7 @@ public class ExceptionAdvice {
      */
     @ExceptionHandler(CExpiredAccessTokenException.class)
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
-    protected CommonResult expiredAccessTokenException(HttpServletRequest request, CExpiredAccessTokenException e) {
+    protected CommonResponse expiredAccessTokenException(HttpServletRequest request, CExpiredAccessTokenException e) {
         return responseService.getFailResult(
                 Integer.parseInt(getMessage("expiredAccessToken.code")), getMessage("expiredAccessToken.msg")
         );
@@ -87,7 +87,7 @@ public class ExceptionAdvice {
      */
     @ExceptionHandler(CUserExistException.class)
     @ResponseStatus(HttpStatus.CONFLICT)
-    protected CommonResult existUserException(HttpServletRequest request, CUserExistException e) {
+    protected CommonResponse existUserException(HttpServletRequest request, CUserExistException e) {
         return responseService.getFailResult(
                 Integer.parseInt(getMessage("userExistException.code")), getMessage("userExistException.msg")
         );

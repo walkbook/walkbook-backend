@@ -28,7 +28,6 @@ public class SignService {
 
     @Transactional
     public String signin(SignInRequest signInRequest) {
-
         User user = userRepository.findByUsername(signInRequest.getUsername())
                 .orElseThrow(CLoginFailedException::new);
 
