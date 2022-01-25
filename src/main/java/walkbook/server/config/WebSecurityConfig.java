@@ -1,5 +1,6 @@
 package walkbook.server.config;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -20,15 +21,11 @@ import walkbook.server.jwt.JwtRequestFilter;
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 @Configuration
+@RequiredArgsConstructor
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
-    @Autowired
-    private CAuthenticationEntryPointException cAuthenticationEntryPointException;
-
-    @Autowired
-    private CAccessDeniedException cAccessDeniedException;
-
-    @Autowired
-    private JwtRequestFilter jwtRequestFilter;
+    private final CAuthenticationEntryPointException cAuthenticationEntryPointException;
+    private final CAccessDeniedException cAccessDeniedException;
+    private final JwtRequestFilter jwtRequestFilter;
 
     @Bean
     public PasswordEncoder passwordEncoder() {
