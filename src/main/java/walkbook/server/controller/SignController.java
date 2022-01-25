@@ -32,11 +32,11 @@ public class SignController {
     @PostMapping("/signup")
     public CommonResponse registerUser(@Valid @RequestBody SIgnUpRequest sIgnUpRequest) {
         Long userId = signService.signup(sIgnUpRequest);
-        return responseService.getSingleResult(userService.findById(userId));
+        return responseService.getSingleResult(new UserResponse(userService.findById(userId)));
     }
 
     @GetMapping("/{userId}")
     public SingleResponse<UserResponse> getUserInfo(@PathVariable Long userId){
-        return responseService.getSingleResult(userService.findById(userId));
+        return responseService.getSingleResult(new UserResponse(userService.findById(userId)));
     }
 }

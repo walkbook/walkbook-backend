@@ -26,17 +26,17 @@ public class UserService {
     }
 
     @Transactional(readOnly = true)
-    public UserResponse findById(Long id) {
+    public User findById(Long id) {
         User user = userRepository.findById(id)
                 .orElseThrow(CUserNotFoundException::new);
-        return new UserResponse(user);
+        return user;
     }
 
     @Transactional(readOnly = true)
-    public UserResponse findByUsername(String username) {
+    public User findByUsername(String username) {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(CUserNotFoundException::new);
-        return new UserResponse(user);
+        return user;
     }
 
     @Transactional(readOnly = true)
