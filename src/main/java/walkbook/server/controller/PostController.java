@@ -6,13 +6,11 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.*;
 import walkbook.server.domain.Post;
-import walkbook.server.domain.User;
-import walkbook.server.dto.ListResponse;
+import walkbook.server.dto.CommonResponse;
 import walkbook.server.dto.SingleResponse;
 import walkbook.server.dto.post.PostRequest;
 import walkbook.server.dto.post.PostResponse;
 import walkbook.server.service.PostService;
-import walkbook.server.service.UserService;
 import walkbook.server.service.response.ResponseService;
 
 @RestController
@@ -20,7 +18,6 @@ import walkbook.server.service.response.ResponseService;
 @RequestMapping("/api/post")
 public class PostController {
     private final PostService postService;
-    private final UserService userService;
     private final ResponseService responseService;
 
     @GetMapping("/page")
@@ -32,5 +29,21 @@ public class PostController {
     public SingleResponse<PostResponse> savePost(@PathVariable Long userId, @RequestBody PostRequest postRequest){
         Post newPost = postService.savePost(userId, postRequest);
         return responseService.getSingleResult(new PostResponse(newPost));
+    }
+
+    @GetMapping("/{postId}")
+    public SingleResponse<PostResponse> getPost(@PathVariable Long postId){
+        return responseService.getSingleResult(new PostResponse(postService.getPostByPostId(postId)));
+    }
+
+    @PutMapping("/{postId}")
+    public SingleResponse<PostResponse> editPost(@PathVariable Long postId, @RequestBody PostRequest postRequest){
+        return responseService.getSingleResult(new PostResponse(postService.editPost(postId, postRequest)));
+    }
+
+    @DeleteMapping("/{postId}")
+    public CommonResponse deletePost(@PathVariable Long postId){
+        postService.deletePost(postId);
+        return responseService.getSuccessResult();
     }
 }

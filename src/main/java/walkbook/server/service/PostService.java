@@ -6,7 +6,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import walkbook.server.domain.Post;
-import walkbook.server.domain.User;
 import walkbook.server.dto.post.PostResponse;
 import walkbook.server.dto.post.PostRequest;
 import walkbook.server.repository.PostRepository;
@@ -29,5 +28,27 @@ public class PostService {
         newPost.setUser(userService.findById(userId));
         postRepository.save(newPost);
         return newPost;
+    }
+
+    @Transactional(readOnly = true)
+    public Post getPostByPostId(Long postId){
+        return postRepository.findAllByPostId(postId);
+    }
+
+    @Transactional
+    public Post editPost(Long postId, PostRequest postRequest){
+        Post post = postRepository.findAllByPostId(postId);
+        post.setTitle(postRequest.getTitle());
+        post.setDescription(postRequest.getDescription());
+        post.setStartLocation(postRequest.getStartLocation());
+        post.setFinishLocation(postRequest.getFinishLocation());
+        post.setTmi(postRequest.getTmi());
+        return post;
+    }
+
+    @Transactional
+    public Long deletePost(Long postId){
+        postRepository.deleteById(postId);
+        return postId;
     }
 }
