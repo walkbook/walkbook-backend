@@ -1,6 +1,6 @@
 package walkbook.server.config;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -20,15 +20,11 @@ import walkbook.server.jwt.JwtRequestFilter;
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 @Configuration
+@RequiredArgsConstructor
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
-    @Autowired
-    private CAuthenticationEntryPointException cAuthenticationEntryPointException;
-
-    @Autowired
-    private CAccessDeniedException cAccessDeniedException;
-
-    @Autowired
-    private JwtRequestFilter jwtRequestFilter;
+    private final CAuthenticationEntryPointException cAuthenticationEntryPointException;
+    private final CAccessDeniedException cAccessDeniedException;
+    private final JwtRequestFilter jwtRequestFilter;
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -65,6 +61,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/api/user/signin").permitAll()
                 .antMatchers("/api/user/signup").permitAll()
                 .antMatchers("/api/user/{userId}").permitAll()
+                .antMatchers("/api/post/*").permitAll()
                 .antMatchers("/daum.html").permitAll()
                 .anyRequest().authenticated()
 
