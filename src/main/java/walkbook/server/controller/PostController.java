@@ -30,10 +30,7 @@ public class PostController {
 
     @PostMapping("/{userId}")
     public SingleResponse<PostResponse> savePost(@PathVariable Long userId, @RequestBody PostRequest postRequest){
-        User author = userService.findById(userId);
-        Post newPost = postRequest.toEntity();
-        newPost.setUser(author);
-        postService.savePost(newPost);
+        Post newPost = postService.savePost(userId, postRequest);
         return responseService.getSingleResult(new PostResponse(newPost));
     }
 }
