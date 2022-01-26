@@ -8,10 +8,13 @@ import org.springframework.web.bind.annotation.*;
 import walkbook.server.domain.Post;
 import walkbook.server.dto.CommonResponse;
 import walkbook.server.dto.SingleResponse;
+import walkbook.server.dto.post.PageResponse;
 import walkbook.server.dto.post.PostRequest;
 import walkbook.server.dto.post.PostResponse;
 import walkbook.server.service.PostService;
 import walkbook.server.service.response.ResponseService;
+
+import javax.servlet.ServletRequest;
 
 @RestController
 @RequiredArgsConstructor
@@ -21,28 +24,28 @@ public class PostController {
     private final ResponseService responseService;
 
     @GetMapping("/page")
-    public Page<PostResponse> getAllPosts(@PageableDefault(size=8, sort="createdDate") Pageable pageRequest){
+    public Page<PageResponse> getAllPosts(@PageableDefault(size = 8, sort = "createdDate") Pageable pageRequest) {
         return postService.getAllPosts(pageRequest);
     }
 
-    @PostMapping("/{userId}")
-    public SingleResponse<PostResponse> savePost(@PathVariable Long userId, @RequestBody PostRequest postRequest){
-        Post newPost = postService.savePost(userId, postRequest);
+    @PostMapping("/save")
+    public SingleResponse<PostResponse> savePost(ServletRequest request, @RequestBody PostRequest postRequest) {
+        Post newPost = postService.savePost(request, postRequest);
         return responseService.getSingleResult(new PostResponse(newPost));
     }
 
-    @GetMapping("/{postId}")
-    public SingleResponse<PostResponse> getPost(@PathVariable Long postId){
+    @GetMapping("/get/{postId}")
+    public SingleResponse<PostResponse> getPost(@PathVariable Long postId) {
         return responseService.getSingleResult(new PostResponse(postService.getPostByPostId(postId)));
     }
 
-    @PutMapping("/{postId}")
-    public SingleResponse<PostResponse> editPost(@PathVariable Long postId, @RequestBody PostRequest postRequest){
+    @PutMapping("/edit/{postId}")
+    public SingleResponse<PostResponse> editPost(@PathVariable Long postId, @RequestBody PostRequest postRequest) {
         return responseService.getSingleResult(new PostResponse(postService.editPost(postId, postRequest)));
     }
 
-    @DeleteMapping("/{postId}")
-    public CommonResponse deletePost(@PathVariable Long postId){
+    @DeleteMapping("/delete/{postId}")
+    public CommonResponse deletePost(@PathVariable Long postId) {
         postService.deletePost(postId);
         return responseService.getSuccessResult();
     }
