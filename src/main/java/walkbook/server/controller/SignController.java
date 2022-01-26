@@ -5,7 +5,7 @@ import org.springframework.web.bind.annotation.*;
 import walkbook.server.dto.sign.TokenResponse;
 import walkbook.server.dto.user.UserResponse;
 import walkbook.server.dto.sign.SignInRequest;
-import walkbook.server.dto.sign.SIgnUpRequest;
+import walkbook.server.dto.sign.SignUpRequest;
 import walkbook.server.dto.CommonResponse;
 import walkbook.server.dto.SingleResponse;
 import walkbook.server.service.SignService;
@@ -30,13 +30,13 @@ public class SignController {
     }
 
     @PostMapping("/signup")
-    public CommonResponse registerUser(@Valid @RequestBody SIgnUpRequest sIgnUpRequest) {
-        Long userId = signService.signup(sIgnUpRequest);
+    public CommonResponse registerUser(@Valid @RequestBody SignUpRequest signUpRequest) {
+        Long userId = signService.signup(signUpRequest);
         return responseService.getSingleResult(new UserResponse(userService.findById(userId)));
     }
 
     @GetMapping("/{userId}")
-    public SingleResponse<UserResponse> getUserInfo(@PathVariable Long userId){
+    public SingleResponse<UserResponse> getUserInfo(@PathVariable Long userId) {
         return responseService.getSingleResult(new UserResponse(userService.findById(userId)));
     }
 }
