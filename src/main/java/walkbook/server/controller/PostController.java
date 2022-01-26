@@ -28,23 +28,23 @@ public class PostController {
         return postService.getAllPosts(pageRequest);
     }
 
-    @PostMapping("/save")
+    @PostMapping("/create")
     public SingleResponse<PostResponse> savePost(ServletRequest request, @RequestBody PostRequest postRequest) {
         Post newPost = postService.savePost(request, postRequest);
         return responseService.getSingleResult(new PostResponse(newPost));
     }
 
-    @GetMapping("/get/{postId}")
+    @GetMapping("/{postId}")
     public SingleResponse<PostResponse> getPost(@PathVariable Long postId) {
         return responseService.getSingleResult(new PostResponse(postService.getPostByPostId(postId)));
     }
 
-    @PutMapping("/edit/{postId}")
+    @PutMapping("/{postId}/edit")
     public SingleResponse<PostResponse> editPost(@PathVariable Long postId, @RequestBody PostRequest postRequest) {
         return responseService.getSingleResult(new PostResponse(postService.editPost(postId, postRequest)));
     }
 
-    @DeleteMapping("/delete/{postId}")
+    @DeleteMapping("/{postId}/delete")
     public CommonResponse deletePost(@PathVariable Long postId) {
         postService.deletePost(postId);
         return responseService.getSuccessResult();
