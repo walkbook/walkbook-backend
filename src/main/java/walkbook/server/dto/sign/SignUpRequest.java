@@ -9,7 +9,7 @@ import walkbook.server.domain.User;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class SIgnUpRequest {
+public class SignUpRequest {
     private String username;
     private String password;
     private String nickname;
