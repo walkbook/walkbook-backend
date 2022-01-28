@@ -26,7 +26,7 @@ public class SignController {
     public TokenResponse createAuthenticationToken(@Valid @RequestBody SignInRequest signInRequest) {
         String username = signInRequest.getUsername();
         final String token = signService.signin(signInRequest);
-        return responseService.getTokenResult(userService.findByUsername(username), token);
+        return responseService.getTokenResult(new UserResponse(userService.findByUsername(username)), token);
     }
 
     @PostMapping("/signup")
