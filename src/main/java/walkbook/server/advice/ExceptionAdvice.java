@@ -79,6 +79,17 @@ public class ExceptionAdvice {
                 Integer.parseInt(getMessage("expiredAccessToken.code")), getMessage("expiredAccessToken.msg")
         );
     }
+    /**
+     * -1004
+     * 액세스 토큰 에러시 발생하는 에러
+     */
+    @ExceptionHandler(CAccessTokenException.class)
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    protected CommonResponse accessTokenException(HttpServletRequest request, CExpiredAccessTokenException e) {
+        return responseService.getFailResult(
+                Integer.parseInt(getMessage("accessToken.code")), getMessage("accessToken.msg")
+        );
+    }
 
     /**
     * -2000

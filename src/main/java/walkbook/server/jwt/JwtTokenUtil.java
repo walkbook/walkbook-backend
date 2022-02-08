@@ -7,6 +7,8 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
+import walkbook.server.advice.exception.CAccessTokenException;
+import walkbook.server.advice.exception.CExpiredAccessTokenException;
 import walkbook.server.service.UserDetailsServiceImpl;
 
 import javax.annotation.PostConstruct;
@@ -48,7 +50,13 @@ public class JwtTokenUtil implements Serializable {
     }
 
     public String getUsernameFromToken(String token) {
-        return Jwts.parser().setSigningKey(secret).parseClaimsJws(token).getBody().getSubject();
+        try {
+            return Jwts.parser().setSigningKey(secret).parseClaimsJws(token).getBody().getSubject();
+        } catch (ExpiredJwtException e) {
+            throw new CExpiredAccessTokenException();
+        } catch (UnsupportedJwtException | MalformedJwtException | SignatureException | IllegalArgumentException e) {
+            throw new CAccessTokenException();
+        }
     }
 
     public String resolveToken(HttpServletRequest request) {
@@ -60,7 +68,7 @@ public class JwtTokenUtil implements Serializable {
             Jws<Claims> claimsJws = Jwts.parser().setSigningKey(secret).parseClaimsJws(token);
             return !claimsJws.getBody().getExpiration().before(new Date());
         } catch (Exception e) {
-            return false;
+            throw new CExpiredAccessTokenException();
         }
     }
 }

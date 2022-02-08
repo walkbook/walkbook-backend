@@ -14,6 +14,9 @@ signupFailed:
 expiredAccessToken:
   code: "-1003"
   msg: "액세스 토큰이 만료되었습니다."
+accessToken:
+  code: "-1004"
+  msg: "액세스 토큰이 유효하지 않습니다."
 postNotFoundException:
   code: "-2000"
   msg: "존재하지 않는 포스트입니다."
