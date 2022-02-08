@@ -5,6 +5,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import walkbook.server.advice.exception.CPostNotFoundException;
 import walkbook.server.domain.Post;
 import walkbook.server.dto.post.PageResponse;
 import walkbook.server.dto.post.PostRequest;
@@ -27,13 +28,24 @@ public class PostService {
         return postList.map(PageResponse::new);
     }
 
+    @Transactional(readOnly = true)
+    public Page<PageResponse> searchPosts(String searchType, String keyword, Pageable pageRequest) {
+        Page<Post> postList;
+        if (searchType.equals("title")) {
+            postList = postRepository.findByTitleContaining(pageRequest, keyword);
+        } else {
+            postList = postRepository.findByDescriptionContaining(pageRequest, keyword);
+        }
+        return postList.map(PageResponse::new);
+    }
+
     @Transactional
     public Post savePost(ServletRequest request, PostRequest postRequest) {
         String token = jwtTokenUtil.resolveToken((HttpServletRequest) request);
-        Post newPost = postRequest.toEntity();
-        newPost.setUser(userService.findByUsername(jwtTokenUtil.getUsernameFromToken(token)));
-        postRepository.save(newPost);
-        return newPost;
+        Post post = postRequest.toEntity();
+        post.setUser(userService.findByUsername(jwtTokenUtil.getUsernameFromToken(token)));
+        postRepository.save(post);
+        return post;
     }
 
     @Transactional(readOnly = true)
@@ -54,6 +66,7 @@ public class PostService {
 
     @Transactional
     public Long deletePost(Long postId) {
+        postRepository.findById(postId).orElseThrow(CPostNotFoundException::new);
         postRepository.deleteById(postId);
         return postId;
     }

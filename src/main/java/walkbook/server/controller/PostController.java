@@ -28,7 +28,14 @@ public class PostController {
         return postService.getAllPosts(pageRequest);
     }
 
-    @PostMapping("/create")
+    @GetMapping("/search")
+    public Page<PageResponse> searchPosts(@RequestParam(value = "searchType") String searchType,
+                                          @RequestParam(value = "keyword") String keyword,
+                                          @PageableDefault(size = 8, sort = "createdDate") Pageable pageRequest) {
+        return postService.searchPosts(searchType, keyword, pageRequest);
+    }
+
+    @PostMapping("/")
     public SingleResponse<PostResponse> savePost(ServletRequest request, @RequestBody PostRequest postRequest) {
         Post newPost = postService.savePost(request, postRequest);
         return responseService.getSingleResult(new PostResponse(newPost));
@@ -39,12 +46,12 @@ public class PostController {
         return responseService.getSingleResult(new PostResponse(postService.getPostByPostId(postId)));
     }
 
-    @PutMapping("/{postId}/edit")
+    @PutMapping("/{postId}")
     public SingleResponse<PostResponse> editPost(@PathVariable Long postId, @RequestBody PostRequest postRequest) {
         return responseService.getSingleResult(new PostResponse(postService.editPost(postId, postRequest)));
     }
 
-    @DeleteMapping("/{postId}/delete")
+    @DeleteMapping("/{postId}")
     public CommonResponse deletePost(@PathVariable Long postId) {
         postService.deletePost(postId);
         return responseService.getSuccessResult();
