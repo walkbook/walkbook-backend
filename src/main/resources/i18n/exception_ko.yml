@@ -11,15 +11,9 @@ loginFailed:
 signupFailed:
   code: "-1002"
   msg: "이미 가입된 아이디입니다."
-authenticationEntrypoint:
-  code: "-1003"
-  msg: "해당 리소스에 접근하기 위한 권한이 없습니다."
-accessDenied:
-  code: "-1004"
-  msg: "해당 리소스에 접근할 수 없는 권한입니다."
 expiredAccessToken:
-  code: "-1006"
+  code: "-1003"
   msg: "액세스 토큰이 만료되었습니다."
-userExistException:
-  code: "-1008"
-  msg: "이미 가입된 계정입니다. 로그인을 해주세요"
+postNotFoundException:
+  code: "-2000"
+  msg: "존재하지 않는 포스트입니다."

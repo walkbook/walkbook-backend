@@ -46,7 +46,7 @@ public class ExceptionAdvice {
 
     /***
      * -1001
-     * 유저 이메일 로그인 실패 시 발생시키는 예외
+     * 유저 로그인 실패 시 발생시키는 예외
      */
     @ExceptionHandler(CLoginFailedException.class)
     @ResponseStatus(HttpStatus.CONFLICT)
@@ -58,7 +58,7 @@ public class ExceptionAdvice {
 
     /***
      * -1002
-     * 회원 가입 시 이미 로그인 된 이메일인 경우 발생 시키는 예외
+     * 회원 가입 시 이미 가입된 아이디인 경우 발생 시키는 예외
      */
     @ExceptionHandler(CSignupFailedException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
@@ -69,7 +69,7 @@ public class ExceptionAdvice {
     }
 
     /**
-     * -1006
+     * -1003
      * 액세스 토큰 만료시 발생하는 에러
      */
     @ExceptionHandler(CExpiredAccessTokenException.class)
@@ -80,15 +80,15 @@ public class ExceptionAdvice {
         );
     }
 
-    /***
-     * -1008
-     * 기 가입자 에러
-     */
-    @ExceptionHandler(CUserExistException.class)
-    @ResponseStatus(HttpStatus.CONFLICT)
-    protected CommonResponse existUserException(HttpServletRequest request, CUserExistException e) {
+    /**
+    * -2000
+    * 존재하지 않는 포스트일 때 발생하는 에러
+    */
+    @ExceptionHandler(CPostNotFoundException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    protected CommonResponse postNotFoundException(HttpServletRequest request, CPostNotFoundException e) {
         return responseService.getFailResult(
-                Integer.parseInt(getMessage("userExistException.code")), getMessage("userExistException.msg")
+                Integer.parseInt(getMessage("postNotFoundException.code")), getMessage("postNotFoundException.msg")
         );
     }
 

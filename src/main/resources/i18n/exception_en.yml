@@ -4,22 +4,16 @@ unKnown:
   msg: "An unknown error has occurred."
 userNotFound:
   code: "-1000"
-  msg: "This member not exist"
+  msg: "This member does not exist"
 loginFailed:
   code: "-1001"
   msg: "It's an ID you didn't sign up for, or it's an incorrect password."
 signupFailed:
   code: "-1002"
-  msg: "This email is already subscribed."
-authenticationEntrypoint:
-  code: "-1003"
-  msg: "You do not have permission to access that resource."
-accessDenied:
-  code: "-1004"
-  msg: "Permission not accessible to this resource."
+  msg: "This ID is already subscribed."
 expiredAccessToken:
-  code: "-1006"
+  code: "-1003"
   msg: "AccessToken is Expired"
-userExistException:
-  code: "-1008"
-  msg: "Already signed account, please login."
+postNotFoundException:
+  code: "-2000"
+  msg: "This member does not exist"
