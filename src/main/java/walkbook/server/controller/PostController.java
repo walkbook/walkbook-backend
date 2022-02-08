@@ -9,6 +9,7 @@ import walkbook.server.domain.Post;
 import walkbook.server.dto.CommonResponse;
 import walkbook.server.dto.SingleResponse;
 import walkbook.server.dto.post.PageResponse;
+import walkbook.server.dto.post.PostLikeResponse;
 import walkbook.server.dto.post.PostRequest;
 import walkbook.server.dto.post.PostResponse;
 import walkbook.server.service.PostService;
@@ -55,5 +56,10 @@ public class PostController {
     public CommonResponse deletePost(@PathVariable Long postId) {
         postService.deletePost(postId);
         return responseService.getSuccessResult();
+    }
+
+    @PostMapping("/{postId}/like")
+    public SingleResponse<PostLikeResponse> likePost(ServletRequest request, @PathVariable Long postId) {
+        return responseService.getSingleResult(postService.likePost(request, postId));
     }
 }
