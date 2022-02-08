@@ -7,12 +7,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import walkbook.server.advice.exception.CPostNotFoundException;
 import walkbook.server.domain.Post;
+import walkbook.server.domain.PostComment;
 import walkbook.server.domain.PostLike;
 import walkbook.server.domain.User;
-import walkbook.server.dto.post.PageResponse;
-import walkbook.server.dto.post.PostLikeResponse;
-import walkbook.server.dto.post.PostRequest;
+import walkbook.server.dto.post.*;
 import walkbook.server.jwt.JwtTokenUtil;
+import walkbook.server.repository.PostCommentRepository;
 import walkbook.server.repository.PostLikeRepository;
 import walkbook.server.repository.PostRepository;
 
@@ -25,6 +25,7 @@ import java.util.concurrent.atomic.AtomicReference;
 public class PostService {
     private final PostRepository postRepository;
     private final PostLikeRepository postLikeRepository;
+    private final PostCommentRepository postCommentRepository;
     private final UserService userService;
     private final JwtTokenUtil jwtTokenUtil;
 
@@ -99,5 +100,17 @@ public class PostService {
                 }
         );
         return new PostLikeResponse(post, user, liked.get());
+    }
+
+    @Transactional
+    public PostComment saveComment(ServletRequest request, Long postId, PostCommentRequest postCommentRequest){
+        String token = jwtTokenUtil.resolveToken((HttpServletRequest) request);
+        PostComment postComment = postCommentRequest.toEntity();
+        postComment.setUser(userService.findByUsername(jwtTokenUtil.getUsernameFromToken(token)));
+        Post post = postRepository.findById(postId).orElseThrow(CPostNotFoundException::new);
+        postComment.setPost(post);
+        postCommentRepository.save(postComment);
+        post.mappingPostComment(postComment);
+        return postComment;
     }
 }

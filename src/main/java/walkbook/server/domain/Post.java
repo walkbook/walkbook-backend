@@ -27,7 +27,7 @@ public class Post {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long postId;
 
-    @ManyToOne
+    @ManyToOne(fetch = LAZY)
     @JoinColumn(name = "userId")
     private User user;
 
@@ -66,4 +66,24 @@ public class Post {
     public void updateLikeCount() {
         this.likeCount = (long) this.likeList.size();
     }
+
+    public Long commentCount;
+
+    @OneToMany(fetch = LAZY, mappedBy = "post", cascade = CascadeType.REMOVE)
+    private List<PostComment> commentList = new ArrayList<>();
+
+    public void mappingPostComment(PostComment postComment) {
+        this.commentList.add(postComment);
+        updateCommentCount();
+    }
+
+    public void removePostComment(PostComment postComment) {
+        this.commentList.remove(postComment);
+        updateCommentCount();
+    }
+
+    public void updateCommentCount() {
+        this.commentCount = (long) this.commentList.size();
+    }
+
 }

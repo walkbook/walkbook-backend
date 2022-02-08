@@ -8,10 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import walkbook.server.domain.Post;
 import walkbook.server.dto.CommonResponse;
 import walkbook.server.dto.SingleResponse;
-import walkbook.server.dto.post.PageResponse;
-import walkbook.server.dto.post.PostLikeResponse;
-import walkbook.server.dto.post.PostRequest;
-import walkbook.server.dto.post.PostResponse;
+import walkbook.server.dto.post.*;
 import walkbook.server.service.PostService;
 import walkbook.server.service.response.ResponseService;
 
@@ -62,4 +59,10 @@ public class PostController {
     public SingleResponse<PostLikeResponse> likePost(ServletRequest request, @PathVariable Long postId) {
         return responseService.getSingleResult(postService.likePost(request, postId));
     }
+
+    @PostMapping("/{postId}/comment")
+    public SingleResponse<PostCommentResponse> saveComment(ServletRequest request, @PathVariable Long postId, @RequestBody PostCommentRequest postCommentRequest) {
+        return responseService.getSingleResult(new PostCommentResponse(postService.saveComment(request, postId, postCommentRequest)));
+    }
+
 }
