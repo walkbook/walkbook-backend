@@ -12,9 +12,9 @@ import java.io.Serializable;
 @Component
 public class CAuthenticationEntryPointException implements AuthenticationEntryPoint, Serializable {
     @Override
-    public void commence(HttpServletRequest httpServletRequest,
-                         HttpServletResponse httpServletResponse,
+    public void commence(HttpServletRequest request,
+                         HttpServletResponse response,
                          AuthenticationException e) throws IOException {
-        httpServletResponse.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized");
+        response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized");
     }
 }
