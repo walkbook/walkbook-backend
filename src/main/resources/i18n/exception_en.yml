@@ -17,6 +17,9 @@ expiredAccessToken:
 accessToken:
   code: "-1004"
   msg: "AccessToken is invalid."
+userAccessDenied:
+  code: "-1005"
+  msg: "This member does not have Authority"
 postNotFoundException:
   code: "-2000"
   msg: "This member does not exist."

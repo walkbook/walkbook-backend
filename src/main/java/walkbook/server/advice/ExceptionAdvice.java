@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -85,9 +86,21 @@ public class ExceptionAdvice {
      */
     @ExceptionHandler(CAccessTokenException.class)
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
-    protected CommonResponse accessTokenException(HttpServletRequest request, CExpiredAccessTokenException e) {
+    protected CommonResponse accessTokenException(HttpServletRequest request, CAccessTokenException e) {
         return responseService.getFailResult(
                 Integer.parseInt(getMessage("accessToken.code")), getMessage("accessToken.msg")
+        );
+    }
+
+    /**
+     * -1005
+     * 회원의 접근이 거부되는 경우 발생하는 에러
+     */
+    @ExceptionHandler(AccessDeniedException.class)
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    protected CommonResponse userDifferentException(HttpServletRequest request, AccessDeniedException e) {
+        return responseService.getFailResult(
+                Integer.parseInt(getMessage("userAccessDenied.code")), getMessage("userAccessDenied.msg")
         );
     }
 

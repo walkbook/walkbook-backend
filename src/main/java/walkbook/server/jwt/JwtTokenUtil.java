@@ -68,7 +68,7 @@ public class JwtTokenUtil implements Serializable {
             Jws<Claims> claimsJws = Jwts.parser().setSigningKey(secret).parseClaimsJws(token);
             return !claimsJws.getBody().getExpiration().before(new Date());
         } catch (Exception e) {
-            throw new CExpiredAccessTokenException();
+            return false;
         }
     }
 }

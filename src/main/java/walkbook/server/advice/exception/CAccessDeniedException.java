@@ -14,6 +14,6 @@ public class CAccessDeniedException implements AccessDeniedHandler {
     public void handle(HttpServletRequest request,
                        HttpServletResponse response,
                        AccessDeniedException e) throws IOException {
-        response.sendError(HttpServletResponse.SC_FORBIDDEN, "Access Denied");
+        response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized");
     }
 }
