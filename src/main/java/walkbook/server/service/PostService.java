@@ -3,6 +3,8 @@ package walkbook.server.service;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import walkbook.server.advice.exception.CPostNotFoundException;
@@ -11,13 +13,10 @@ import walkbook.server.domain.PostComment;
 import walkbook.server.domain.PostLike;
 import walkbook.server.domain.User;
 import walkbook.server.dto.post.*;
-import walkbook.server.jwt.JwtTokenUtil;
 import walkbook.server.repository.PostCommentRepository;
 import walkbook.server.repository.PostLikeRepository;
 import walkbook.server.repository.PostRepository;
 
-import javax.servlet.ServletRequest;
-import javax.servlet.http.HttpServletRequest;
 import java.util.concurrent.atomic.AtomicReference;
 
 @Service
@@ -27,7 +26,6 @@ public class PostService {
     private final PostLikeRepository postLikeRepository;
     private final PostCommentRepository postCommentRepository;
     private final UserService userService;
-    private final JwtTokenUtil jwtTokenUtil;
 
     @Transactional(readOnly = true)
     public Page<PageResponse> getAllPosts(Pageable pageRequest) {
@@ -47,10 +45,9 @@ public class PostService {
     }
 
     @Transactional
-    public Post savePost(ServletRequest request, PostRequest postRequest) {
-        String token = jwtTokenUtil.resolveToken((HttpServletRequest) request);
+    public Post savePost(UserDetails requestUser, PostRequest postRequest) {
         Post post = postRequest.toEntity();
-        post.setUser(userService.findByUsername(jwtTokenUtil.getUsernameFromToken(token)));
+        post.setUser(userService.findByUsername(requestUser.getUsername()));
         postRepository.save(post);
         return post;
     }
@@ -61,8 +58,9 @@ public class PostService {
     }
 
     @Transactional
-    public Post editPost(Long postId, PostRequest postRequest) {
-        Post post = postRepository.findAllByPostId(postId);
+    public Post editPost(UserDetails requestUser, Long postId, PostRequest postRequest) {
+        Post post = postRepository.findById(postId).orElseThrow(CPostNotFoundException::new);
+        checkSameUser(requestUser, post.getUser().getUsername());
         post.setTitle(postRequest.getTitle());
         post.setDescription(postRequest.getDescription());
         post.setStartLocation(postRequest.getStartLocation());
@@ -72,16 +70,16 @@ public class PostService {
     }
 
     @Transactional
-    public void deletePost(Long postId) {
-        postRepository.findById(postId).orElseThrow(CPostNotFoundException::new);
-        postRepository.deleteById(postId);
+    public void deletePost(UserDetails requestUser, Long postId) {
+        Post post = postRepository.findById(postId).orElseThrow(CPostNotFoundException::new);
+        checkSameUser(requestUser, post.getUser().getUsername());
+        postRepository.delete(post);
     }
 
     @Transactional
-    public PostLikeResponse likePost(ServletRequest request, Long postId) {
-        String token = jwtTokenUtil.resolveToken((HttpServletRequest) request);
+    public PostLikeResponse likePost(UserDetails requestUser, Long postId) {
         Post post = postRepository.findById(postId).orElseThrow(CPostNotFoundException::new);
-        User user = userService.findByUsername(jwtTokenUtil.getUsernameFromToken(token));
+        User user = userService.findByUsername(requestUser.getUsername());
         AtomicReference<Boolean> liked = new AtomicReference<>(false);
         postLikeRepository.findByPostAndUser(post, user).ifPresentOrElse(
                 //좋아요 있을 경우 좋아요 삭제
@@ -103,14 +101,39 @@ public class PostService {
     }
 
     @Transactional
-    public PostComment saveComment(ServletRequest request, Long postId, PostCommentRequest postCommentRequest){
-        String token = jwtTokenUtil.resolveToken((HttpServletRequest) request);
+    public PostComment saveComment(UserDetails requestUser, Long postId, PostCommentRequest postCommentRequest){
         PostComment postComment = postCommentRequest.toEntity();
-        postComment.setUser(userService.findByUsername(jwtTokenUtil.getUsernameFromToken(token)));
+        postComment.setUser(userService.findByUsername(requestUser.getUsername()));
         Post post = postRepository.findById(postId).orElseThrow(CPostNotFoundException::new);
         postComment.setPost(post);
         postCommentRepository.save(postComment);
         post.mappingPostComment(postComment);
         return postComment;
+    }
+
+    @Transactional
+    public PostComment editComment(UserDetails requestUser, Long postId, Long commentId, PostCommentRequest postCommentRequest){
+        PostComment postComment = postCommentRepository.findById(commentId).orElseThrow(RuntimeException::new);
+        checkSameUser(requestUser, postComment.getUser().getUsername());
+        Post post = postRepository.findById(postId).orElseThrow(CPostNotFoundException::new);
+        post.removePostComment(postComment);
+        postComment.setContent(postCommentRequest.getContent());
+        post.mappingPostComment(postComment);
+        return postComment;
+    }
+
+    @Transactional
+    public void deleteComment(UserDetails requestUser, Long postId, Long commentId){
+        PostComment postComment = postCommentRepository.findById(commentId).orElseThrow(RuntimeException::new);
+        checkSameUser(requestUser, postComment.getUser().getUsername());
+        Post post = postRepository.findById(postId).orElseThrow(CPostNotFoundException::new);
+        post.removePostComment(postComment);
+        postCommentRepository.delete(postComment);
+    }
+
+    private void checkSameUser(UserDetails requestUser, String username) {
+        if(!requestUser.getUsername().equals(username)){
+            throw new AccessDeniedException("작성자와 수정자가 다릅니다.");
+        }
     }
 }

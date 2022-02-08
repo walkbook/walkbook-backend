@@ -4,6 +4,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import walkbook.server.domain.Post;
 import walkbook.server.dto.CommonResponse;
@@ -11,8 +14,6 @@ import walkbook.server.dto.SingleResponse;
 import walkbook.server.dto.post.*;
 import walkbook.server.service.PostService;
 import walkbook.server.service.response.ResponseService;
-
-import javax.servlet.ServletRequest;
 
 @RestController
 @RequiredArgsConstructor
@@ -33,9 +34,10 @@ public class PostController {
         return postService.searchPosts(searchType, keyword, pageRequest);
     }
 
+    @PreAuthorize("isAuthenticated()")
     @PostMapping("/")
-    public SingleResponse<PostResponse> savePost(ServletRequest request, @RequestBody PostRequest postRequest) {
-        Post newPost = postService.savePost(request, postRequest);
+    public SingleResponse<PostResponse> savePost(@AuthenticationPrincipal UserDetails user, @RequestBody PostRequest postRequest) {
+        Post newPost = postService.savePost(user, postRequest);
         return responseService.getSingleResult(new PostResponse(newPost));
     }
 
@@ -44,25 +46,41 @@ public class PostController {
         return responseService.getSingleResult(new PostResponse(postService.getPostByPostId(postId)));
     }
 
+    @PreAuthorize("isAuthenticated()")
     @PutMapping("/{postId}")
-    public SingleResponse<PostResponse> editPost(@PathVariable Long postId, @RequestBody PostRequest postRequest) {
-        return responseService.getSingleResult(new PostResponse(postService.editPost(postId, postRequest)));
+    public SingleResponse<PostResponse> editPost(@AuthenticationPrincipal UserDetails user, @PathVariable Long postId, @RequestBody PostRequest postRequest) {
+        return responseService.getSingleResult(new PostResponse(postService.editPost(user, postId, postRequest)));
     }
 
+    @PreAuthorize("isAuthenticated()")
     @DeleteMapping("/{postId}")
-    public CommonResponse deletePost(@PathVariable Long postId) {
-        postService.deletePost(postId);
+    public CommonResponse deletePost(@AuthenticationPrincipal UserDetails user, @PathVariable Long postId) {
+        postService.deletePost(user, postId);
         return responseService.getSuccessResult();
     }
 
+    @PreAuthorize("isAuthenticated()")
     @PostMapping("/{postId}/like")
-    public SingleResponse<PostLikeResponse> likePost(ServletRequest request, @PathVariable Long postId) {
-        return responseService.getSingleResult(postService.likePost(request, postId));
+    public SingleResponse<PostLikeResponse> likePost(@AuthenticationPrincipal UserDetails user, @PathVariable Long postId) {
+        return responseService.getSingleResult(postService.likePost(user, postId));
     }
 
+    @PreAuthorize("isAuthenticated()")
     @PostMapping("/{postId}/comment")
-    public SingleResponse<PostCommentResponse> saveComment(ServletRequest request, @PathVariable Long postId, @RequestBody PostCommentRequest postCommentRequest) {
-        return responseService.getSingleResult(new PostCommentResponse(postService.saveComment(request, postId, postCommentRequest)));
+    public SingleResponse<PostCommentResponse> saveComment(@AuthenticationPrincipal UserDetails user, @PathVariable Long postId, @RequestBody PostCommentRequest postCommentRequest) {
+        return responseService.getSingleResult(new PostCommentResponse(postService.saveComment(user, postId, postCommentRequest)));
     }
 
+    @PreAuthorize("isAuthenticated()")
+    @PutMapping("/{postId}/comment/{commentId}")
+    public SingleResponse<PostCommentResponse> editComment(@AuthenticationPrincipal UserDetails user, @PathVariable Long postId, @PathVariable Long commentId, @RequestBody PostCommentRequest postCommentRequest){
+        return  responseService.getSingleResult(new PostCommentResponse(postService.editComment(user, postId, commentId, postCommentRequest)));
+    }
+
+    @PreAuthorize("isAuthenticated()")
+    @DeleteMapping("/{postId}/comment/{commentId}")
+    public CommonResponse deleteComment(@AuthenticationPrincipal UserDetails user, @PathVariable Long postId, @PathVariable Long commentId){
+        postService.deleteComment(user, postId, commentId);
+        return responseService.getSuccessResult();
+    }
 }
