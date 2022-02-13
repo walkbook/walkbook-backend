@@ -28,45 +28,68 @@ public class PostService {
     private final UserService userService;
 
     @Transactional(readOnly = true)
-    public Page<PageResponse> getAllPosts(Pageable pageRequest) {
+    public Page<PageResponse> getAllPosts(UserDetails requestUser, Pageable pageRequest) {
         Page<Post> postList = postRepository.findAll(pageRequest);
-        return postList.map(PageResponse::new);
+        return getPageResponses(requestUser, postList);
+    }
+
+    private Page<PageResponse> getPageResponses(UserDetails requestUser, Page<Post> postList) {
+        return postList.map(
+            post -> {
+                PageResponse pageResponse = new PageResponse(post);
+                if (requestUser != null) {
+                    User user = userService.findByUsername(requestUser.getUsername());
+                    if (isLiked(user, post)) {
+                        pageResponse.setLike();
+                    }
+                }
+                return pageResponse;
+            });
     }
 
     @Transactional(readOnly = true)
-    public Page<PageResponse> searchPosts(String searchType, String keyword, Pageable pageRequest) {
+    public Page<PageResponse> searchPosts(UserDetails requestUser, String searchType, String keyword, Pageable pageRequest) {
         Page<Post> postList;
         if (searchType.equals("title")) {
             postList = postRepository.findByTitleContaining(pageRequest, keyword);
         } else {
             postList = postRepository.findByDescriptionContaining(pageRequest, keyword);
         }
-        return postList.map(PageResponse::new);
+        return getPageResponses(requestUser, postList);
     }
 
     @Transactional
-    public Post savePost(UserDetails requestUser, PostRequest postRequest) {
+    public PostResponse savePost(UserDetails requestUser, PostRequest postRequest) {
         Post post = postRequest.toEntity();
-        post.setUser(userService.findByUsername(requestUser.getUsername()));
+        User user = userService.findByUsername(requestUser.getUsername());
+        post.setUser(user);
         postRepository.save(post);
-        return post;
+        return new PostResponse(post);
     }
 
     @Transactional(readOnly = true)
-    public Post getPostByPostId(Long postId) {
-        return postRepository.findAllByPostId(postId);
+    public PostResponse getPostByPostId(UserDetails requestUser, Long postId) {
+        Post post = postRepository.findById(postId).orElseThrow(CPostNotFoundException::new);
+        return getPostResponse(requestUser, post);
+    }
+
+    private PostResponse getPostResponse(UserDetails requestUser, Post post) {
+        PostResponse postResponse = new PostResponse(post);
+        if (requestUser != null) {
+            User user = userService.findByUsername(requestUser.getUsername());
+            if (isLiked(user, post)) {
+                postResponse.setLike();
+            }
+        }
+        return postResponse;
     }
 
     @Transactional
-    public Post editPost(UserDetails requestUser, Long postId, PostRequest postRequest) {
+    public PostResponse editPost(UserDetails requestUser, Long postId, PostRequest postRequest) {
         Post post = postRepository.findById(postId).orElseThrow(CPostNotFoundException::new);
         checkSameUser(requestUser, post.getUser().getUsername());
-        post.setTitle(postRequest.getTitle());
-        post.setDescription(postRequest.getDescription());
-        post.setStartLocation(postRequest.getStartLocation());
-        post.setFinishLocation(postRequest.getFinishLocation());
-        post.setTmi(postRequest.getTmi());
-        return post;
+        post.set(postRequest);
+        return getPostResponse(requestUser, post);
     }
 
     @Transactional
@@ -101,7 +124,7 @@ public class PostService {
     }
 
     @Transactional
-    public PostComment saveComment(UserDetails requestUser, Long postId, PostCommentRequest postCommentRequest){
+    public PostComment saveComment(UserDetails requestUser, Long postId, PostCommentRequest postCommentRequest) {
         PostComment postComment = postCommentRequest.toEntity();
         postComment.setUser(userService.findByUsername(requestUser.getUsername()));
         Post post = postRepository.findById(postId).orElseThrow(CPostNotFoundException::new);
@@ -112,7 +135,7 @@ public class PostService {
     }
 
     @Transactional
-    public PostComment editComment(UserDetails requestUser, Long postId, Long commentId, PostCommentRequest postCommentRequest){
+    public PostComment editComment(UserDetails requestUser, Long postId, Long commentId, PostCommentRequest postCommentRequest) {
         PostComment postComment = postCommentRepository.findById(commentId).orElseThrow(RuntimeException::new);
         checkSameUser(requestUser, postComment.getUser().getUsername());
         Post post = postRepository.findById(postId).orElseThrow(CPostNotFoundException::new);
@@ -123,7 +146,7 @@ public class PostService {
     }
 
     @Transactional
-    public void deleteComment(UserDetails requestUser, Long postId, Long commentId){
+    public void deleteComment(UserDetails requestUser, Long postId, Long commentId) {
         PostComment postComment = postCommentRepository.findById(commentId).orElseThrow(RuntimeException::new);
         checkSameUser(requestUser, postComment.getUser().getUsername());
         Post post = postRepository.findById(postId).orElseThrow(CPostNotFoundException::new);
@@ -132,8 +155,12 @@ public class PostService {
     }
 
     private void checkSameUser(UserDetails requestUser, String username) {
-        if(!requestUser.getUsername().equals(username)){
+        if (!requestUser.getUsername().equals(username)) {
             throw new AccessDeniedException("작성자와 수정자가 다릅니다.");
         }
+    }
+
+    private boolean isLiked(User user, Post post) {
+        return postLikeRepository.findByPostAndUser(post, user).isPresent();
     }
 }
