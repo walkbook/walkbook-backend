@@ -4,6 +4,7 @@ import lombok.Getter;
 import walkbook.server.domain.Post;
 
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 
 @Getter
 public class PostResponse {
@@ -17,6 +18,10 @@ public class PostResponse {
     private final String tmi;
     private final String createdDate;
     private final String modifiedDate;
+    private Boolean liked;
+    private final Long likeCount;
+    private final Long commentCount;
+    private final List comments;
 
     public PostResponse(Post post) {
         DateTimeFormatter format = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
@@ -30,5 +35,13 @@ public class PostResponse {
         this.tmi = post.getTmi();
         this.createdDate = post.getCreatedDate().format(format);
         this.modifiedDate = post.getModifiedDate().format(format);
+        this.liked = false;
+        this.likeCount = post.getLikeCount();
+        this.commentCount = post.getCommentCount();
+        this.comments = post.getCommentList();
+    }
+
+    public void setLike(){
+        this.liked = true;
     }
 }

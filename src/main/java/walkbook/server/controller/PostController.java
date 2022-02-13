@@ -23,33 +23,32 @@ public class PostController {
     private final ResponseService responseService;
 
     @GetMapping("/page")
-    public Page<PageResponse> getAllPosts(@PageableDefault(size = 8, sort = "createdDate") Pageable pageRequest) {
-        return postService.getAllPosts(pageRequest);
+    public Page<PageResponse> getAllPosts(@AuthenticationPrincipal UserDetails user, @PageableDefault(size = 8, sort = "createdDate,desc") Pageable pageRequest) {
+        return postService.getAllPosts(user, pageRequest);
     }
 
     @GetMapping("/search")
-    public Page<PageResponse> searchPosts(@RequestParam(value = "searchType") String searchType,
+    public Page<PageResponse> searchPosts(@AuthenticationPrincipal UserDetails user, @RequestParam(value = "searchType") String searchType,
                                           @RequestParam(value = "keyword") String keyword,
                                           @PageableDefault(size = 8, sort = "createdDate") Pageable pageRequest) {
-        return postService.searchPosts(searchType, keyword, pageRequest);
+        return postService.searchPosts(user, searchType, keyword, pageRequest);
     }
 
     @PreAuthorize("isAuthenticated()")
-    @PostMapping("/")
+    @PostMapping("")
     public SingleResponse<PostResponse> savePost(@AuthenticationPrincipal UserDetails user, @RequestBody PostRequest postRequest) {
-        Post newPost = postService.savePost(user, postRequest);
-        return responseService.getSingleResult(new PostResponse(newPost));
+        return responseService.getSingleResult(postService.savePost(user, postRequest));
     }
 
     @GetMapping("/{postId}")
-    public SingleResponse<PostResponse> getPost(@PathVariable Long postId) {
-        return responseService.getSingleResult(new PostResponse(postService.getPostByPostId(postId)));
+    public SingleResponse<PostResponse> getPost(@AuthenticationPrincipal UserDetails user, @PathVariable Long postId) {
+        return responseService.getSingleResult(postService.getPostByPostId(user, postId));
     }
 
     @PreAuthorize("isAuthenticated()")
     @PutMapping("/{postId}")
     public SingleResponse<PostResponse> editPost(@AuthenticationPrincipal UserDetails user, @PathVariable Long postId, @RequestBody PostRequest postRequest) {
-        return responseService.getSingleResult(new PostResponse(postService.editPost(user, postId, postRequest)));
+        return responseService.getSingleResult(postService.editPost(user, postId, postRequest));
     }
 
     @PreAuthorize("isAuthenticated()")
