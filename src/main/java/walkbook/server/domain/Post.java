@@ -5,6 +5,7 @@ import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+import walkbook.server.dto.post.PostRequest;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -86,4 +87,19 @@ public class Post {
         this.commentCount = (long) this.commentList.size();
     }
 
+    @PostPersist
+    public void afterInsert(){
+        this.likeList = new ArrayList<>();
+        this.commentList = new ArrayList<>();
+        updateLikeCount();
+        updateCommentCount();
+    }
+
+    public void set(PostRequest postRequest){
+        this.title = postRequest.getTitle();
+        this.description = postRequest.getDescription();
+        this.startLocation = postRequest.getStartLocation();
+        this.finishLocation = postRequest.getFinishLocation();
+        this.tmi = postRequest.getTmi();
+    }
 }
