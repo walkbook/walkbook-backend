@@ -120,7 +120,7 @@ public class PostService {
                     liked.set(true);
                 }
         );
-        return new PostLikeResponse(post, user, liked.get());
+        return new PostLikeResponse(post, liked.get());
     }
 
     @Transactional
