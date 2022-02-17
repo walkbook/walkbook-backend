@@ -48,13 +48,9 @@ public class PostService {
     }
 
     @Transactional(readOnly = true)
-    public Page<PageResponse> searchPosts(UserDetails requestUser, String searchType, String keyword, Pageable pageRequest) {
+    public Page<PageResponse> searchPosts(UserDetails requestUser, String keyword, Pageable pageRequest) {
         Page<Post> postList;
-        if (searchType.equals("title")) {
-            postList = postRepository.findByTitleContaining(pageRequest, keyword);
-        } else {
-            postList = postRepository.findByDescriptionContaining(pageRequest, keyword);
-        }
+        postList = postRepository.findByTitleContainingOrDescriptionContaining(pageRequest, keyword, keyword);
         return getPageResponses(requestUser, postList);
     }
 

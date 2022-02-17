@@ -28,10 +28,10 @@ public class PostController {
     }
 
     @GetMapping("/search")
-    public Page<PageResponse> searchPosts(@AuthenticationPrincipal UserDetails user, @RequestParam(value = "searchType") String searchType,
+    public Page<PageResponse> searchPosts(@AuthenticationPrincipal UserDetails user,
                                           @RequestParam(value = "keyword") String keyword,
                                           @PageableDefault(size = 8, sort = "createdDate") Pageable pageRequest) {
-        return postService.searchPosts(user, searchType, keyword, pageRequest);
+        return postService.searchPosts(user, keyword, pageRequest);
     }
 
     @PreAuthorize("isAuthenticated()")
