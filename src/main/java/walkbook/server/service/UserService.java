@@ -49,8 +49,6 @@ public class UserService {
                 .findById(id).orElseThrow(CUserNotFoundException::new);
         checkSameUser(requestUser, user.getUsername());
         user.setNickname(userRequest.getNickname());
-        user.setGender(userRequest.getGender());
-        user.setAge(userRequest.getAge());
         user.setLocation(userRequest.getLocation());
         user.setIntroduction(userRequest.getIntroduction());
         return user;
