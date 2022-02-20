@@ -17,7 +17,8 @@ import walkbook.server.repository.PostCommentRepository;
 import walkbook.server.repository.PostLikeRepository;
 import walkbook.server.repository.PostRepository;
 
-import java.util.concurrent.atomic.AtomicReference;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
@@ -64,17 +65,19 @@ public class PostService {
     }
 
     @Transactional(readOnly = true)
-    public PostResponse getPostByPostId(UserDetails requestUser, Long postId) {
+    public PostResponse getPostById(UserDetails requestUser, Long postId) {
         Post post = postRepository.findById(postId).orElseThrow(CPostNotFoundException::new);
         return getPostResponse(requestUser, post);
     }
 
     private PostResponse getPostResponse(UserDetails requestUser, Post post) {
         PostResponse postResponse = new PostResponse(post);
+        List<PostCommentResponse> postCommentList = postCommentRepository.findAllByPost(post).stream().map(PostCommentResponse::fromEntity).collect(Collectors.toList());
+        postResponse.setComments(postCommentList);
         if (requestUser != null) {
             User user = userService.findByUsername(requestUser.getUsername());
             if (isLiked(user, post)) {
-                postResponse.setLike();
+                postResponse.setLiked(true);
             }
         }
         return postResponse;
@@ -104,13 +107,11 @@ public class PostService {
                 postLike -> {
                     postLikeRepository.delete(postLike);
                     post.removePostLike(postLike);
-                    user.removePostLike(postLike);
                 },
                 //좋아요 없을 경우 좋아요 추가
                 () -> {
                     PostLike postLike = PostLike.builder().build();
-                    postLike.mappingPost(post);
-                    postLike.mappingUser(user);
+                    postLike.mapping(user, post);
                     postLikeRepository.save(postLike);
                 }
         );
