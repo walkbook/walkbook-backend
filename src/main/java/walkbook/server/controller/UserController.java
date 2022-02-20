@@ -1,6 +1,9 @@
 package walkbook.server.controller;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import walkbook.server.dto.ListResponse;
 import walkbook.server.dto.post.PostResponse;
@@ -39,6 +42,12 @@ public class UserController {
     @GetMapping("/{userId}")
     public SingleResponse<UserResponse> getUserInfo(@PathVariable Long userId) {
         return responseService.getSingleResult(new UserResponse(userService.findById(userId)));
+    }
+
+    @PreAuthorize("isAuthenticated()")
+    @PutMapping("/{userId}")
+    public SingleResponse<UserResponse> editUserInfo(@AuthenticationPrincipal UserDetails user, @PathVariable Long userId, @RequestBody UserRequest userRequest) {
+        return responseService.getSingleResult(new UserResponse(userService.update(user, userId, userRequest)));
     }
 
     @GetMapping("/{userId}/post")
