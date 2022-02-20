@@ -12,8 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 import walkbook.server.advice.exception.CLoginFailedException;
 import walkbook.server.advice.exception.CSignupFailedException;
 import walkbook.server.domain.User;
-import walkbook.server.dto.sign.SignUpRequest;
-import walkbook.server.dto.sign.SignInRequest;
+import walkbook.server.dto.user.UserRequest;
 import walkbook.server.jwt.JwtTokenUtil;
 import walkbook.server.repository.UserRepository;
 
@@ -27,21 +26,21 @@ public class SignService {
     private final AuthenticationManager authenticationManager;
 
     @Transactional
-    public String signin(SignInRequest signInRequest) {
-        User user = userRepository.findByUsername(signInRequest.getUsername()).orElseThrow(CLoginFailedException::new);
+    public String signin(UserRequest userRequest) {
+        User user = userRepository.findByUsername(userRequest.getUsername()).orElseThrow(CLoginFailedException::new);
 
-        if (!passwordEncoder.matches(signInRequest.getPassword(), user.getPassword()))
+        if (!passwordEncoder.matches(userRequest.getPassword(), user.getPassword()))
             throw new CLoginFailedException();
 
-        Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(signInRequest.getUsername(), signInRequest.getPassword()));
+        Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(userRequest.getUsername(), userRequest.getPassword()));
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
         return jwtTokenUtil.generateToken(authentication);
     }
 
     @Transactional
-    public Long signup(SignUpRequest sIgnUpRequest) {
-        if (userRepository.findByUsername(sIgnUpRequest.getUsername()).isPresent()) throw new CSignupFailedException();
-        return userRepository.save(sIgnUpRequest.toEntity(passwordEncoder)).getUserId();
+    public Long signup(UserRequest userRequest) {
+        if (userRepository.findByUsername(userRequest.getUsername()).isPresent()) throw new CSignupFailedException();
+        return userRepository.save(userRequest.toEntity(passwordEncoder)).getUserId();
     }
 }

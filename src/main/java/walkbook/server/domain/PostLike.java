@@ -35,12 +35,8 @@ public class PostLike {
     @LastModifiedDate
     private LocalDateTime modifiedDate;
 
-    public void mappingUser(User user) {
-        this.user = user;
-        user.mappingPostLike(this);
-    }
-
-    public void mappingPost(Post post) {
+    public void mapping(User user, Post post) {
+        this.user= user;
         this.post = post;
         post.mappingPostLike(this);
     }

@@ -1,4 +1,4 @@
-package walkbook.server.dto.sign;
+package walkbook.server.dto.user;
 
 import lombok.Getter;
 import lombok.Setter;

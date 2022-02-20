@@ -5,8 +5,7 @@ import org.springframework.stereotype.Service;
 import walkbook.server.dto.CommonResponse;
 import walkbook.server.dto.ListResponse;
 import walkbook.server.dto.SingleResponse;
-import walkbook.server.dto.sign.TokenResponse;
-import walkbook.server.dto.user.UserResponse;
+import walkbook.server.dto.user.TokenResponse;
 
 import java.util.List;
 
