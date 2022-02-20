@@ -1,12 +1,15 @@
 package walkbook.server.dto.post;
 
 import lombok.Getter;
+import lombok.Setter;
 import walkbook.server.domain.Post;
 
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 
 @Getter
+@Setter
 public class PostResponse {
     private final Long postId;
     private final Long authorId;
@@ -21,7 +24,7 @@ public class PostResponse {
     private Boolean liked;
     private final Long likeCount;
     private final Long commentCount;
-    private final List comments;
+    private List comments;
 
     public PostResponse(Post post) {
         DateTimeFormatter format = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
@@ -38,10 +41,6 @@ public class PostResponse {
         this.liked = false;
         this.likeCount = post.getLikeCount();
         this.commentCount = post.getCommentCount();
-        this.comments = post.getCommentList();
-    }
-
-    public void setLike(){
-        this.liked = true;
+        this.comments = new ArrayList();
     }
 }

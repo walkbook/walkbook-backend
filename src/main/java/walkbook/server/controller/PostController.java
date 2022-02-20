@@ -41,7 +41,7 @@ public class PostController {
 
     @GetMapping("/{postId}")
     public SingleResponse<PostResponse> getPost(@AuthenticationPrincipal UserDetails user, @PathVariable Long postId) {
-        return responseService.getSingleResult(postService.getPostByPostId(user, postId));
+        return responseService.getSingleResult(postService.getPostById(user, postId));
     }
 
     @PreAuthorize("isAuthenticated()")
