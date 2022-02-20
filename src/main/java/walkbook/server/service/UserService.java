@@ -19,12 +19,6 @@ import java.util.stream.Collectors;
 public class UserService {
     private UserRepository userRepository;
 
-    @Transactional
-    public Long save(UserRequest userRequest) {
-        User saved = userRepository.save(userRequest.toEntity());
-        return saved.getUserId();
-    }
-
     @Transactional(readOnly = true)
     public User findById(Long id) {
         User user = userRepository.findById(id)
