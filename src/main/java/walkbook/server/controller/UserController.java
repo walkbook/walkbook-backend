@@ -2,12 +2,14 @@ package walkbook.server.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
+import walkbook.server.dto.ListResponse;
 import walkbook.server.dto.post.PostResponse;
 import walkbook.server.dto.user.TokenResponse;
 import walkbook.server.dto.user.UserRequest;
 import walkbook.server.dto.user.UserResponse;
 import walkbook.server.dto.CommonResponse;
 import walkbook.server.dto.SingleResponse;
+import walkbook.server.service.PostService;
 import walkbook.server.service.SignService;
 import walkbook.server.service.UserService;
 import walkbook.server.service.response.ResponseService;
@@ -19,6 +21,7 @@ public class UserController {
     private final ResponseService responseService;
     private final SignService signService;
     private final UserService userService;
+    private final PostService postService;
 
     @PostMapping("/signin")
     public TokenResponse createAuthenticationToken(@RequestBody UserRequest userRequest) {
@@ -38,13 +41,12 @@ public class UserController {
         return responseService.getSingleResult(new UserResponse(userService.findById(userId)));
     }
 
-//    @GetMapping("/{userId}/liked-post")
-//    public SingleResponse<PostResponse> getUserLikePosts(@PathVariable Long userId){
-//        return responseService.getListResult();
-//    }
-//
-//    @GetMapping("/{userId}/my-post")
-//    public SingleResponse<PostResponse> getUserPosts(@PathVariable Long userId){
-//        return responseService.getListResult();
-//    }
+    @GetMapping("/{userId}/post")
+    public ListResponse<PostResponse> getUserPosts(@PathVariable Long userId){
+        return responseService.getListResult(postService.getPostByUser(userService.findById(userId)));
+    }
+    @GetMapping("/{userId}/liked-post")
+    public ListResponse<PostResponse> getUserLikePosts(@PathVariable Long userId){
+        return responseService.getListResult(postService.getLikePostByUser(userService.findById(userId)));
+    }
 }

@@ -67,10 +67,25 @@ public class PostService {
     @Transactional(readOnly = true)
     public PostResponse getPostById(UserDetails requestUser, Long postId) {
         Post post = postRepository.findById(postId).orElseThrow(CPostNotFoundException::new);
-        return getPostResponse(requestUser, post);
+        return getPostResponseByRequestUser(requestUser, post);
     }
 
-    private PostResponse getPostResponse(UserDetails requestUser, Post post) {
+    @Transactional(readOnly = true)
+    public List<PostResponse> getPostByUser(User user){
+        List<Post> postList = postRepository.findAllByUser(user);
+        return postList.stream().map(post -> getPostResponseByUser(user, post)).collect(Collectors.toList());
+    }
+
+    @Transactional(readOnly = true)
+    public List<PostResponse> getLikePostByUser(User user){
+        List<PostLike> postLikeList = postLikeRepository.findAllByUser(user);
+        return postLikeList.stream().map(
+                postLike -> getPostResponseByUser(user,
+                        postRepository.findById(postLike.getPost().getPostId()).orElseThrow(CPostNotFoundException::new)))
+                .collect(Collectors.toList());
+    }
+
+    private PostResponse getPostResponseByRequestUser(UserDetails requestUser, Post post) {
         PostResponse postResponse = new PostResponse(post);
         List<PostCommentResponse> postCommentList = postCommentRepository.findAllByPost(post).stream().map(PostCommentResponse::fromEntity).collect(Collectors.toList());
         postResponse.setComments(postCommentList);
@@ -83,12 +98,22 @@ public class PostService {
         return postResponse;
     }
 
+    private PostResponse getPostResponseByUser(User user, Post post) {
+        PostResponse postResponse = new PostResponse(post);
+        List<PostCommentResponse> postCommentList = postCommentRepository.findAllByPost(post).stream().map(PostCommentResponse::fromEntity).collect(Collectors.toList());
+        postResponse.setComments(postCommentList);
+        if (isLiked(user, post)) {
+            postResponse.setLiked(true);
+        }
+        return postResponse;
+    }
+
     @Transactional
     public PostResponse editPost(UserDetails requestUser, Long postId, PostRequest postRequest) {
         Post post = postRepository.findById(postId).orElseThrow(CPostNotFoundException::new);
         checkSameUser(requestUser, post.getUser().getUsername());
         post.set(postRequest);
-        return getPostResponse(requestUser, post);
+        return getPostResponseByRequestUser(requestUser, post);
     }
 
     @Transactional
@@ -123,8 +148,8 @@ public class PostService {
         postComment.setUser(userService.findByUsername(requestUser.getUsername()));
         Post post = postRepository.findById(postId).orElseThrow(CPostNotFoundException::new);
         postComment.setPost(post);
-        postCommentRepository.save(postComment);
         post.mappingPostComment(postComment);
+        postCommentRepository.save(postComment);
         return postComment;
     }
 
