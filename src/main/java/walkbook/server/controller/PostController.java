@@ -8,7 +8,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
-import walkbook.server.domain.Post;
 import walkbook.server.dto.CommonResponse;
 import walkbook.server.dto.SingleResponse;
 import walkbook.server.dto.post.*;
@@ -60,8 +59,9 @@ public class PostController {
 
     @PreAuthorize("isAuthenticated()")
     @PostMapping("/{postId}/like")
-    public SingleResponse<PostLikeResponse> likePost(@AuthenticationPrincipal UserDetails user, @PathVariable Long postId) {
-        return responseService.getSingleResult(postService.likePost(user, postId));
+    public CommonResponse likePost(@AuthenticationPrincipal UserDetails user, @PathVariable Long postId) {
+        postService.likePost(user, postId);
+        return responseService.getSuccessResult();
     }
 
     @PreAuthorize("isAuthenticated()")
