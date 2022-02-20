@@ -96,10 +96,9 @@ public class PostService {
     }
 
     @Transactional
-    public PostLikeResponse likePost(UserDetails requestUser, Long postId) {
+    public void likePost(UserDetails requestUser, Long postId) {
         Post post = postRepository.findById(postId).orElseThrow(CPostNotFoundException::new);
         User user = userService.findByUsername(requestUser.getUsername());
-        AtomicReference<Boolean> liked = new AtomicReference<>(false);
         postLikeRepository.findByPostAndUser(post, user).ifPresentOrElse(
                 //좋아요 있을 경우 좋아요 삭제
                 postLike -> {
@@ -113,10 +112,8 @@ public class PostService {
                     postLike.mappingPost(post);
                     postLike.mappingUser(user);
                     postLikeRepository.save(postLike);
-                    liked.set(true);
                 }
         );
-        return new PostLikeResponse(post, liked.get());
     }
 
     @Transactional
