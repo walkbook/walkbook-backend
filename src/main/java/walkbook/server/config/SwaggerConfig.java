@@ -2,6 +2,7 @@ package walkbook.server.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
 import org.springframework.security.web.method.annotation.AuthenticationPrincipalArgumentResolver;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
@@ -50,5 +51,6 @@ public class SwaggerConfig extends WebMvcConfigurationSupport {
     @Override
     protected void addArgumentResolvers(List<HandlerMethodArgumentResolver> argumentResolvers) {
         argumentResolvers.add(new AuthenticationPrincipalArgumentResolver());
+        argumentResolvers.add( new PageableHandlerMethodArgumentResolver());
     }
 }

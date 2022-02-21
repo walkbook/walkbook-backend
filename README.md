@@ -48,3 +48,6 @@ C:\Users\김세원\Desktop\snulion9th\walkbook-backend\build.gradle
 
 ## ✨ 배포된 서버   
 https://walkbook-backend.herokuapp.com/  
+
+## 🧐 API 명세 확인하기   
+https://walkbook-backend.herokuapp.com/swagger-ui/index.html
