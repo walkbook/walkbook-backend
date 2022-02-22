@@ -8,5 +8,5 @@ import java.util.List;
 @Getter
 @Setter
 public class ListResponse<T> extends CommonResponse {
-    private List<T> list;
+    private List<T> data;
 }

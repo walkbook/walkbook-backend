@@ -1,10 +1,12 @@
 package walkbook.server.dto.post;
 
 import lombok.Getter;
+import lombok.Setter;
 import walkbook.server.domain.Post;
 
 @Getter
-public class PageResponse {
+@Setter
+public class PostCardResponse {
     private final Long postId;
     private final Long authorId;
     private final String authorName;
@@ -14,7 +16,7 @@ public class PageResponse {
     private final Long likeCount;
     private final Long commentCount;
 
-    public PageResponse(Post post) {
+    public PostCardResponse(Post post) {
         this.postId = post.getPostId();
         this.authorId = post.getUser().getUserId();
         this.authorName = post.getUser().getNickname();
@@ -23,9 +25,5 @@ public class PageResponse {
         this.liked = false;
         this.likeCount = post.getLikeCount();
         this.commentCount = post.getCommentCount();
-    }
-
-    public void setLike(){
-        this.liked = true;
     }
 }
