@@ -29,27 +29,13 @@ public class PostService {
     private final UserService userService;
 
     @Transactional(readOnly = true)
-    public Page<PageResponse> getAllPosts(UserDetails requestUser, Pageable pageRequest) {
+    public Page<PostCardResponse> getAllPosts(UserDetails requestUser, Pageable pageRequest) {
         Page<Post> postList = postRepository.findAll(pageRequest);
         return getPageResponses(requestUser, postList);
     }
 
-    private Page<PageResponse> getPageResponses(UserDetails requestUser, Page<Post> postList) {
-        return postList.map(
-            post -> {
-                PageResponse pageResponse = new PageResponse(post);
-                if (requestUser != null) {
-                    User user = userService.findByUsername(requestUser.getUsername());
-                    if (isLiked(user, post)) {
-                        pageResponse.setLike();
-                    }
-                }
-                return pageResponse;
-            });
-    }
-
     @Transactional(readOnly = true)
-    public Page<PageResponse> searchPosts(UserDetails requestUser, String keyword, Pageable pageRequest) {
+    public Page<PostCardResponse> getPostsByKeyword(UserDetails requestUser, String keyword, Pageable pageRequest) {
         Page<Post> postList;
         postList = postRepository.findByTitleContainingOrDescriptionContaining(pageRequest, keyword, keyword);
         return getPageResponses(requestUser, postList);
@@ -71,41 +57,18 @@ public class PostService {
     }
 
     @Transactional(readOnly = true)
-    public List<PostResponse> getPostByUser(User user){
+    public List<PostCardResponse> getPostCardByUser(User user){
         List<Post> postList = postRepository.findAllByUser(user);
-        return postList.stream().map(post -> getPostResponseByUser(user, post)).collect(Collectors.toList());
+        return postList.stream().map(post -> getPostCardResponseByUser(user, post)).collect(Collectors.toList());
     }
 
     @Transactional(readOnly = true)
-    public List<PostResponse> getLikePostByUser(User user){
+    public List<PostCardResponse> getLikePostCardByUser(User user){
         List<PostLike> postLikeList = postLikeRepository.findAllByUser(user);
         return postLikeList.stream().map(
-                postLike -> getPostResponseByUser(user,
+                postLike -> getPostCardResponseByUser(user,
                         postRepository.findById(postLike.getPost().getPostId()).orElseThrow(CPostNotFoundException::new)))
                 .collect(Collectors.toList());
-    }
-
-    private PostResponse getPostResponseByRequestUser(UserDetails requestUser, Post post) {
-        PostResponse postResponse = new PostResponse(post);
-        List<PostCommentResponse> postCommentList = postCommentRepository.findAllByPost(post).stream().map(PostCommentResponse::fromEntity).collect(Collectors.toList());
-        postResponse.setComments(postCommentList);
-        if (requestUser != null) {
-            User user = userService.findByUsername(requestUser.getUsername());
-            if (isLiked(user, post)) {
-                postResponse.setLiked(true);
-            }
-        }
-        return postResponse;
-    }
-
-    private PostResponse getPostResponseByUser(User user, Post post) {
-        PostResponse postResponse = new PostResponse(post);
-        List<PostCommentResponse> postCommentList = postCommentRepository.findAllByPost(post).stream().map(PostCommentResponse::fromEntity).collect(Collectors.toList());
-        postResponse.setComments(postCommentList);
-        if (isLiked(user, post)) {
-            postResponse.setLiked(true);
-        }
-        return postResponse;
     }
 
     @Transactional
@@ -171,6 +134,41 @@ public class PostService {
         Post post = postRepository.findById(postId).orElseThrow(CPostNotFoundException::new);
         post.removePostComment(postComment);
         postCommentRepository.delete(postComment);
+    }
+
+    private Page<PostCardResponse> getPageResponses(UserDetails requestUser, Page<Post> postList) {
+        return postList.map(
+                post -> {
+                    PostCardResponse postCardResponse = new PostCardResponse(post);
+                    if (requestUser != null) {
+                        User user = userService.findByUsername(requestUser.getUsername());
+                        if (isLiked(user, post)) {
+                            postCardResponse.setLiked(true);
+                        }
+                    }
+                    return postCardResponse;
+                });
+    }
+
+    private PostResponse getPostResponseByRequestUser(UserDetails requestUser, Post post) {
+        PostResponse postResponse = new PostResponse(post);
+        List<PostCommentResponse> postCommentList = postCommentRepository.findAllByPost(post).stream().map(PostCommentResponse::fromEntity).collect(Collectors.toList());
+        postResponse.setComments(postCommentList);
+        if (requestUser != null) {
+            User user = userService.findByUsername(requestUser.getUsername());
+            if (isLiked(user, post)) {
+                postResponse.setLiked(true);
+            }
+        }
+        return postResponse;
+    }
+
+        private PostCardResponse getPostCardResponseByUser(User user, Post post) {
+        PostCardResponse postcardResponse = new PostCardResponse(post);
+        if (isLiked(user, post)) {
+            postcardResponse.setLiked(true);
+        }
+        return postcardResponse;
     }
 
     private void checkSameUser(UserDetails requestUser, String username) {

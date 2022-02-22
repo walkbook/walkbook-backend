@@ -22,15 +22,15 @@ public class PostController {
     private final ResponseService responseService;
 
     @GetMapping("/page")
-    public Page<PageResponse> getAllPosts(@AuthenticationPrincipal UserDetails user, @PageableDefault(size = 8, sort = "createdDate,desc") Pageable pageRequest) {
+    public Page<PostCardResponse> getAllPosts(@AuthenticationPrincipal UserDetails user, @PageableDefault(size = 8, sort = "createdDate,desc") Pageable pageRequest) {
         return postService.getAllPosts(user, pageRequest);
     }
 
     @GetMapping("/search")
-    public Page<PageResponse> searchPosts(@AuthenticationPrincipal UserDetails user,
-                                          @RequestParam(value = "keyword") String keyword,
-                                          @PageableDefault(size = 8, sort = "createdDate") Pageable pageRequest) {
-        return postService.searchPosts(user, keyword, pageRequest);
+    public Page<PostCardResponse> searchPosts(@AuthenticationPrincipal UserDetails user,
+                                              @RequestParam(value = "keyword") String keyword,
+                                              @PageableDefault(size = 8, sort = "createdDate") Pageable pageRequest) {
+        return postService.getPostsByKeyword(user, keyword, pageRequest);
     }
 
     @PreAuthorize("isAuthenticated()")
