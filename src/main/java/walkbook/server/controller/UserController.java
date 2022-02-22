@@ -6,7 +6,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import walkbook.server.dto.ListResponse;
-import walkbook.server.dto.post.PostResponse;
+import walkbook.server.dto.post.PostCardResponse;
 import walkbook.server.dto.user.TokenResponse;
 import walkbook.server.dto.user.UserRequest;
 import walkbook.server.dto.user.UserResponse;
@@ -51,11 +51,11 @@ public class UserController {
     }
 
     @GetMapping("/{userId}/post")
-    public ListResponse<PostResponse> getUserPosts(@PathVariable Long userId){
-        return responseService.getListResult(postService.getPostByUser(userService.findById(userId)));
+    public ListResponse<PostCardResponse> getUserPosts(@PathVariable Long userId){
+        return responseService.getListResult(postService.getPostCardByUser(userService.findById(userId)));
     }
     @GetMapping("/{userId}/liked-post")
-    public ListResponse<PostResponse> getUserLikePosts(@PathVariable Long userId){
-        return responseService.getListResult(postService.getLikePostByUser(userService.findById(userId)));
+    public ListResponse<PostCardResponse> getUserLikePosts(@PathVariable Long userId){
+        return responseService.getListResult(postService.getLikePostCardByUser(userService.findById(userId)));
     }
 }

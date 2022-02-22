@@ -29,7 +29,7 @@ public class ResponseService {
 
     public <T> ListResponse<T> getListResult(List<T> list) {
         ListResponse<T> result = new ListResponse<>();
-        result.setList(list);
+        result.setData(list);
         setSuccessResult(result);
         return result;
     }
