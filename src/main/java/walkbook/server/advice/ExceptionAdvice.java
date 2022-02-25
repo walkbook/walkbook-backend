@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -28,7 +29,6 @@ public class ExceptionAdvice {
     @ExceptionHandler(Exception.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     protected CommonResponse defaultException(HttpServletRequest request, Exception e) {
-        log.info(String.valueOf(e));
         return responseService.getFailResult
                 (Integer.parseInt(getMessage("unKnown.code")), getMessage("unKnown.msg"));
     }
@@ -47,7 +47,7 @@ public class ExceptionAdvice {
 
     /***
      * -1001
-     * 유저 이메일 로그인 실패 시 발생시키는 예외
+     * 유저 로그인 실패 시 발생시키는 예외
      */
     @ExceptionHandler(CLoginFailedException.class)
     @ResponseStatus(HttpStatus.CONFLICT)
@@ -59,7 +59,7 @@ public class ExceptionAdvice {
 
     /***
      * -1002
-     * 회원 가입 시 이미 로그인 된 이메일인 경우 발생 시키는 예외
+     * 회원 가입 시 이미 가입된 아이디인 경우 발생 시키는 예외
      */
     @ExceptionHandler(CSignupFailedException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
@@ -70,7 +70,7 @@ public class ExceptionAdvice {
     }
 
     /**
-     * -1006
+     * -1003
      * 액세스 토큰 만료시 발생하는 에러
      */
     @ExceptionHandler(CExpiredAccessTokenException.class)
@@ -80,16 +80,39 @@ public class ExceptionAdvice {
                 Integer.parseInt(getMessage("expiredAccessToken.code")), getMessage("expiredAccessToken.msg")
         );
     }
-
-    /***
-     * -1008
-     * 기 가입자 에러
+    /**
+     * -1004
+     * 액세스 토큰 에러시 발생하는 에러
      */
-    @ExceptionHandler(CUserExistException.class)
-    @ResponseStatus(HttpStatus.CONFLICT)
-    protected CommonResponse existUserException(HttpServletRequest request, CUserExistException e) {
+    @ExceptionHandler(CAccessTokenException.class)
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    protected CommonResponse accessTokenException(HttpServletRequest request, CAccessTokenException e) {
         return responseService.getFailResult(
-                Integer.parseInt(getMessage("userExistException.code")), getMessage("userExistException.msg")
+                Integer.parseInt(getMessage("accessToken.code")), getMessage("accessToken.msg")
+        );
+    }
+
+    /**
+     * -1005
+     * 회원의 접근이 거부되는 경우 발생하는 에러
+     */
+    @ExceptionHandler(AccessDeniedException.class)
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    protected CommonResponse userDifferentException(HttpServletRequest request, AccessDeniedException e) {
+        return responseService.getFailResult(
+                Integer.parseInt(getMessage("userAccessDenied.code")), getMessage("userAccessDenied.msg")
+        );
+    }
+
+    /**
+    * -2000
+    * 존재하지 않는 포스트일 때 발생하는 에러
+    */
+    @ExceptionHandler(CPostNotFoundException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    protected CommonResponse postNotFoundException(HttpServletRequest request, CPostNotFoundException e) {
+        return responseService.getFailResult(
+                Integer.parseInt(getMessage("postNotFoundException.code")), getMessage("postNotFoundException.msg")
         );
     }
 

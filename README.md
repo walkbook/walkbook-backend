@@ -1,6 +1,6 @@
 # walkbook-backend(Spring)
 
-## 서버 실행
+## ✨ 로컬에서 서버 실행
 
 ### 1️⃣ cmd로 실행하기
 1. 콘솔창을 열고 다운받은 프로젝트 경로로 이동
@@ -45,3 +45,9 @@ C:\Users\김세원\Desktop\snulion9th\walkbook-backend\build.gradle
 ### ❗ 8080 port가 이미 사용중인 경우
 1. cmd 창에서 netstat -ano 명령어 실행
 2. 8080 주소를 사용하는 PID 확인 후 taskkill /pid [pid] /f 명령어 실행
+
+## ✨ 배포된 서버   
+https://walkbook-backend.herokuapp.com/  
+
+## 🧐 API 명세 확인하기   
+https://walkbook-backend.herokuapp.com/swagger-ui/index.html

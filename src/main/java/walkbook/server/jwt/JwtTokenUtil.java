@@ -7,6 +7,8 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
+import walkbook.server.advice.exception.CAccessTokenException;
+import walkbook.server.advice.exception.CExpiredAccessTokenException;
 import walkbook.server.service.UserDetailsServiceImpl;
 
 import javax.annotation.PostConstruct;
@@ -17,17 +19,17 @@ import java.util.Date;
 
 @RequiredArgsConstructor
 @Component
-public class JwtTokenUtil  implements Serializable {
+public class JwtTokenUtil implements Serializable {
 
     @Value("${jwt.secret}")
     private String secret;
 
-    public static final long JWT_TOKEN_VALIDITY = 5 * 60 * 60;
+    public static final long JWT_TOKEN_VALIDITY = 20 * 60 * 1000;
 
     private final UserDetailsServiceImpl userDetailsServiceImpl;
 
     @PostConstruct
-    protected  void init(){
+    protected void init() {
         secret = Base64.getEncoder().encodeToString(secret.getBytes());
     }
 
@@ -42,13 +44,19 @@ public class JwtTokenUtil  implements Serializable {
                 .compact();
     }
 
-    public Authentication getAuthentication (String token) {
+    public Authentication getAuthentication(String token) {
         UserDetails userDetails = userDetailsServiceImpl.loadUserByUsername(this.getUsernameFromToken(token));
-        return new UsernamePasswordAuthenticationToken( userDetails, null, userDetails.getAuthorities());
+        return new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
     }
 
     public String getUsernameFromToken(String token) {
-        return Jwts.parser().setSigningKey(secret).parseClaimsJws(token).getBody().getSubject();
+        try {
+            return Jwts.parser().setSigningKey(secret).parseClaimsJws(token).getBody().getSubject();
+        } catch (ExpiredJwtException e) {
+            throw new CExpiredAccessTokenException();
+        } catch (UnsupportedJwtException | MalformedJwtException | SignatureException | IllegalArgumentException e) {
+            throw new CAccessTokenException();
+        }
     }
 
     public String resolveToken(HttpServletRequest request) {
@@ -60,7 +68,7 @@ public class JwtTokenUtil  implements Serializable {
             Jws<Claims> claimsJws = Jwts.parser().setSigningKey(secret).parseClaimsJws(token);
             return !claimsJws.getBody().getExpiration().before(new Date());
         } catch (Exception e) {
-            return  false;
+            return false;
         }
     }
 }

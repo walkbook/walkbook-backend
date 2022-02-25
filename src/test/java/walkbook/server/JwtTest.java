@@ -17,8 +17,7 @@ import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.transaction.annotation.Transactional;
 import walkbook.server.domain.User;
 import walkbook.server.domain.Gender;
-import walkbook.server.dto.sign.SignInRequest;
-import walkbook.server.dto.sign.SIgnUpRequest;
+import walkbook.server.dto.user.UserRequest;
 import walkbook.server.jwt.JwtTokenUtil;
 import walkbook.server.repository.UserRepository;
 
@@ -59,7 +58,7 @@ public class JwtTest {
     @Test
     public void 회원가입_성공() throws Exception {
         //given
-        String object = objectMapper.writeValueAsString(SIgnUpRequest.builder()
+        String object = objectMapper.writeValueAsString(UserRequest.builder()
                 .username("tester")
                 .password(passwordEncoder.encode("tester"))
                 .nickname("테스터")
@@ -84,7 +83,7 @@ public class JwtTest {
     @Test
     public void 회원가입_실패_중복회원() throws Exception {
         //given
-        String object = objectMapper.writeValueAsString(SIgnUpRequest.builder()
+        String object = objectMapper.writeValueAsString(UserRequest.builder()
                 .username("admin")
                 .password(passwordEncoder.encode("admin"))
                 .nickname("admin")
@@ -109,7 +108,7 @@ public class JwtTest {
     @Test
     public void 로그인_성공() throws Exception{
         //given
-        String object = objectMapper.writeValueAsString(SignInRequest.builder()
+        String object = objectMapper.writeValueAsString(UserRequest.builder()
                 .username("admin")
                 .password("admin")
                 .build());
@@ -130,7 +129,7 @@ public class JwtTest {
     @Test
     public void 로그인_실패() throws Exception{
         //given
-        String object = objectMapper.writeValueAsString(SignInRequest.builder()
+        String object = objectMapper.writeValueAsString(UserRequest.builder()
                 .username("tester")
                 .password("tester")
                 .build());
