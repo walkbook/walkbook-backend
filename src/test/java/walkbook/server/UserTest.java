@@ -1,58 +1,57 @@
 package walkbook.server;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.RequiredArgsConstructor;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
-import org.springframework.transaction.annotation.Transactional;
-import walkbook.server.domain.User;
 import walkbook.server.domain.Gender;
+import walkbook.server.domain.User;
 import walkbook.server.dto.user.UserRequest;
-import walkbook.server.jwt.JwtTokenUtil;
 import walkbook.server.repository.UserRepository;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
 @AutoConfigureMockMvc
-@Transactional
-@RequiredArgsConstructor
-public class JwtTest {
-    private final MockMvc mockMvc;
-    private final UserRepository userRepository;
-    private final ObjectMapper objectMapper;
-    private final PasswordEncoder passwordEncoder;
-    private final AuthenticationManager authenticationManager;
-    private final JwtTokenUtil jwtTokenUtil;
-
+public class UserTest {
     private static int userId;
+    @Autowired
+    private MockMvc mockMvc;
+    @Autowired
+    private UserRepository userRepository;
+    @Autowired
+    private ObjectMapper objectMapper;
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     @BeforeEach
-    public void setUp() {
+    public void Init() {
         User user = userRepository.save(User.builder()
-                        .username("admin")
-                        .password(passwordEncoder.encode("admin"))
-                        .nickname("admin")
-                        .gender(Gender.M)
-                        .age("20")
-                        .location("서울시 관악구")
-                        .introduction("안녕하세요. 테스트입니다.")
-                        .build());
+                .username("admin")
+                .password(passwordEncoder.encode("admin"))
+                .nickname("admin")
+                .gender(Gender.M)
+                .age("20")
+                .location("서울시 관악구")
+                .introduction("안녕하세요. 테스트입니다.")
+                .build());
         userId = Math.toIntExact(user.getUserId());
+    }
+
+    @AfterEach
+    public void Clear() {
+        userRepository.deleteAll();
     }
 
     @Test
@@ -68,7 +67,7 @@ public class JwtTest {
                 .introduction("테스트")
                 .build());
         //when
-        ResultActions actions = mockMvc.perform(post("/api/signup")
+        ResultActions actions = mockMvc.perform(post("/api/user/signup")
                 .content(object)
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON));
@@ -93,7 +92,7 @@ public class JwtTest {
                 .introduction("중복테스트")
                 .build());
         //when
-        ResultActions actions = mockMvc.perform(post("/api/signup")
+        ResultActions actions = mockMvc.perform(post("/api/user/signup")
                 .content(object)
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON));
@@ -106,7 +105,7 @@ public class JwtTest {
     }
 
     @Test
-    public void 로그인_성공() throws Exception{
+    public void 로그인_성공() throws Exception {
         //given
         String object = objectMapper.writeValueAsString(UserRequest.builder()
                 .username("admin")
@@ -114,7 +113,7 @@ public class JwtTest {
                 .build());
 
         //when
-        ResultActions actions = mockMvc.perform(post("/api/signin")
+        ResultActions actions = mockMvc.perform(post("/api/user/signin")
                 .content(object)
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON));
@@ -127,7 +126,7 @@ public class JwtTest {
     }
 
     @Test
-    public void 로그인_실패() throws Exception{
+    public void 로그인_실패() throws Exception {
         //given
         String object = objectMapper.writeValueAsString(UserRequest.builder()
                 .username("tester")
@@ -135,7 +134,7 @@ public class JwtTest {
                 .build());
 
         //when
-        ResultActions actions = mockMvc.perform(post("/api/signin")
+        ResultActions actions = mockMvc.perform(post("/api/user/signin")
                 .content(object)
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON));
@@ -148,20 +147,9 @@ public class JwtTest {
     }
 
     @Test
-    public void 회원정보조회_유저ID_성공() throws Exception {
-        //given
-        Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                        "admin",
-                        "admin"
-                )
-        );
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-        final String token = jwtTokenUtil.generateToken(authentication);
-
+    public void 회원정보조회_성공() throws Exception {
         //when
-        ResultActions actions = mockMvc.perform(get("/api/user/{userId}", userId)
-                .header("X-AUTH-TOKEN", token));
+        ResultActions actions = mockMvc.perform(get("/api/user/{userId}", userId));
 
         //then
         actions
@@ -173,13 +161,15 @@ public class JwtTest {
     }
 
     @Test
-    public void 회원정보조회_유저ID_실패() throws Exception{
+    public void 회원정보조회_실패_존재하지_않는_유저ID() throws Exception {
         //when
-        ResultActions actions = mockMvc.perform(get("/api/user/{userId}", userId));
+        ResultActions actions = mockMvc.perform(get("/api/user/{userId}", userId + 1));
 
         //then
         actions
                 .andDo(print())
-                .andExpect(status().isUnauthorized());
+                .andExpect(status().isBadRequest())
+                //-1000, This member does not exist.
+                .andExpect(jsonPath("$.code").value("-1000"));
     }
 }
