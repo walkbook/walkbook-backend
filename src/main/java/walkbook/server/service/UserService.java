@@ -9,11 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 import walkbook.server.advice.exception.CUserNotFoundException;
 import walkbook.server.domain.User;
 import walkbook.server.dto.user.UserRequest;
-import walkbook.server.dto.user.UserResponse;
 import walkbook.server.repository.UserRepository;
-
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -23,24 +19,14 @@ public class UserService {
 
     @Transactional(readOnly = true)
     public User findById(Long id) {
-        User user = userRepository.findById(id)
+        return userRepository.findById(id)
                 .orElseThrow(CUserNotFoundException::new);
-        return user;
     }
 
     @Transactional(readOnly = true)
     public User findByUsername(String username) {
-        User user = userRepository.findByUsername(username)
+        return userRepository.findByUsername(username)
                 .orElseThrow(CUserNotFoundException::new);
-        return user;
-    }
-
-    @Transactional(readOnly = true)
-    public List<UserResponse> findAllUser() {
-        return userRepository.findAll()
-                .stream()
-                .map(UserResponse::new)
-                .collect(Collectors.toList());
     }
 
     @Transactional
@@ -52,11 +38,6 @@ public class UserService {
         user.setLocation(userRequest.getLocation());
         user.setIntroduction(userRequest.getIntroduction());
         return user;
-    }
-
-    @Transactional
-    public void delete(Long id) {
-        userRepository.deleteById(id);
     }
 
     private void checkSameUser(UserDetails requestUser, String username) {
