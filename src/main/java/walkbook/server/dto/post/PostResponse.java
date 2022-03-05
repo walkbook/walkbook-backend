@@ -24,7 +24,7 @@ public class PostResponse {
     private Boolean liked;
     private final Long likeCount;
     private final Long commentCount;
-    private List comments;
+    private List<PostCommentResponse> comments;
 
     public PostResponse(Post post) {
         DateTimeFormatter format = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
@@ -41,6 +41,6 @@ public class PostResponse {
         this.liked = false;
         this.likeCount = post.getLikeCount();
         this.commentCount = post.getCommentCount();
-        this.comments = new ArrayList();
+        this.comments = new ArrayList<>();
     }
 }
