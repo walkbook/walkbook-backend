@@ -52,7 +52,7 @@ public class Post {
     private Long likeCount;
 
     @OneToMany(fetch = LAZY, mappedBy = "post", cascade = CascadeType.REMOVE)
-    private List<PostLike> likeList = new ArrayList<>();
+    private List<PostLike> likeList;
 
     public void mappingPostLike(PostLike postLike) {
         this.likeList.add(postLike);
@@ -71,7 +71,7 @@ public class Post {
     public Long commentCount;
 
     @OneToMany(fetch = LAZY, mappedBy = "post", cascade = CascadeType.REMOVE)
-    private List<PostComment> commentList = new ArrayList<>();
+    private List<PostComment> commentList;
 
     public void mappingPostComment(PostComment postComment) {
         this.commentList.add(postComment);

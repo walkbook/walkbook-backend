@@ -1,6 +1,7 @@
 package walkbook.server.config;
 
 import net.rakugakibox.util.YamlResourceBundle;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.Bean;
@@ -53,7 +54,7 @@ public class MessageConfig implements WebMvcConfigurer {
 
     private static class YamlMessageSource extends ResourceBundleMessageSource {
         @Override
-        protected ResourceBundle doGetBundle(String basename, Locale locale) throws MissingResourceException {
+        protected @NotNull ResourceBundle doGetBundle(@NotNull String basename, @NotNull Locale locale) throws MissingResourceException {
             return ResourceBundle.getBundle(basename, locale, YamlResourceBundle.Control.INSTANCE);
         }
     }
