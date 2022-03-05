@@ -57,17 +57,17 @@ public class PostService {
     }
 
     @Transactional(readOnly = true)
-    public List<PostCardResponse> getPostCardByUser(User user){
+    public List<PostCardResponse> getPostCardByUser(User user) {
         List<Post> postList = postRepository.findAllByUser(user);
         return postList.stream().map(post -> getPostCardResponseByUser(user, post)).collect(Collectors.toList());
     }
 
     @Transactional(readOnly = true)
-    public List<PostCardResponse> getLikePostCardByUser(User user){
+    public List<PostCardResponse> getLikePostCardByUser(User user) {
         List<PostLike> postLikeList = postLikeRepository.findAllByUser(user);
         return postLikeList.stream().map(
-                postLike -> getPostCardResponseByUser(user,
-                        postRepository.findById(postLike.getPost().getPostId()).orElseThrow(CPostNotFoundException::new)))
+                        postLike -> getPostCardResponseByUser(user,
+                                postRepository.findById(postLike.getPost().getPostId()).orElseThrow(CPostNotFoundException::new)))
                 .collect(Collectors.toList());
     }
 
@@ -152,7 +152,7 @@ public class PostService {
 
     private PostResponse getPostResponseByRequestUser(UserDetails requestUser, Post post) {
         PostResponse postResponse = new PostResponse(post);
-        List<PostCommentResponse> postCommentList = postCommentRepository.findAllByPost(post).stream().map(PostCommentResponse::fromEntity).collect(Collectors.toList());
+        List<PostCommentResponse> postCommentList = post.getCommentList().stream().map(PostCommentResponse::fromEntity).collect(Collectors.toList());
         postResponse.setComments(postCommentList);
         if (requestUser != null) {
             User user = userService.findByUsername(requestUser.getUsername());
@@ -163,7 +163,7 @@ public class PostService {
         return postResponse;
     }
 
-        private PostCardResponse getPostCardResponseByUser(User user, Post post) {
+    private PostCardResponse getPostCardResponseByUser(User user, Post post) {
         PostCardResponse postcardResponse = new PostCardResponse(post);
         if (isLiked(user, post)) {
             postcardResponse.setLiked(true);
