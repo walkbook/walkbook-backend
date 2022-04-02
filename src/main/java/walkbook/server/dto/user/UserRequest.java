@@ -17,7 +17,7 @@ public class UserRequest {
     private String password;
     private String nickname;
     private Gender gender;
-    private String age;
+    private int age;
     private String location;
     private String introduction;
 
