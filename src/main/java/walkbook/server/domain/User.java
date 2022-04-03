@@ -28,10 +28,9 @@ public class User {
     private String nickname;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "gender", length = 6)
     private Gender gender;
 
-    private String age;
+    private int age;
 
     private String location;
 

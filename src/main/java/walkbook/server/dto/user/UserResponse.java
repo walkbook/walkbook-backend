@@ -10,7 +10,7 @@ public class UserResponse {
     private final String username;
     private final String nickname;
     private final Gender gender;
-    private final String age;
+    private final int age;
     private final String location;
     private final String introduction;
 
