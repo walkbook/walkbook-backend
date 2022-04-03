@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -33,7 +34,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
-public class UserTest {
+public class UserControllerTest {
     private static int userId;
     @Autowired
     private MockMvc mockMvc;
@@ -68,7 +69,8 @@ public class UserTest {
     }
 
     @Test
-    public void 회원가입_성공() throws Exception {
+    @DisplayName("회원가입 성공")
+    public void signup_success() throws Exception {
         //given
         String userRequest = getUserRequest("tester", "tester", "tester", Gender.M, 20, "서울시 용산구", "테스트");
         //when
@@ -85,7 +87,8 @@ public class UserTest {
     }
 
     @Test
-    public void 회원가입_실패_중복회원() throws Exception {
+    @DisplayName("회원가입 실패, 중복 회원")
+    public void signup_fail_duplicateUser() throws Exception {
         //given
         String userRequest = getUserRequest("admin", "admin", "", Gender.M, 20, "", "");
         //when
@@ -103,7 +106,8 @@ public class UserTest {
     }
 
     @Test
-    public void 로그인_성공() throws Exception {
+    @DisplayName("로그인 성공")
+    public void signin_success() throws Exception {
         //given
         String userRequest = getUserRequest("admin", "admin", "", Gender.M, 20, "", "");
 
@@ -121,7 +125,8 @@ public class UserTest {
     }
 
     @Test
-    public void 로그인_실패() throws Exception {
+    @DisplayName("로그인 실패")
+    public void signin_fail() throws Exception {
         //given
         String object = getUserRequest("tester", "tester", "tester", Gender.M, 20, "서울시 용산구", "테스트");
 
@@ -139,7 +144,8 @@ public class UserTest {
     }
 
     @Test
-    public void 회원정보조회_성공() throws Exception {
+    @DisplayName("회원정보조회 성공")
+    public void getUser_success() throws Exception {
         //when
         ResultActions actions = mockMvc.perform(get("/api/user/{userId}", userId));
 
@@ -153,7 +159,8 @@ public class UserTest {
     }
 
     @Test
-    public void 회원정보조회_실패_존재하지_않는_유저ID() throws Exception {
+    @DisplayName("회원정보조회 실패, 존재하지 않는 유저id")
+    public void getUser_fail_userNotFound() throws Exception {
         //when
         ResultActions actions = mockMvc.perform(get("/api/user/{userId}", userId + 1));
 
@@ -166,7 +173,8 @@ public class UserTest {
 
 
     @Test
-    public void 회원정보수정_성공() throws Exception {
+    @DisplayName("회원정보수정 성공")
+    public void editUser_success() throws Exception {
         //given
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
@@ -197,7 +205,8 @@ public class UserTest {
     }
 
     @Test
-    public void 회원정보수정_실패_권한없음() throws Exception {
+    @DisplayName("회원정보수정 실패, 권한 없음")
+    public void editUser_fail_unauthorized() throws Exception {
         //given
         String userRequest = getUserRequest("tester", "tester", "tester", Gender.M, 20, "서울시 용산구", "테스트");
 
