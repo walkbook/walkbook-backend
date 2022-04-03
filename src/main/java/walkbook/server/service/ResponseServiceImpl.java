@@ -1,6 +1,5 @@
-package walkbook.server.service.response;
+package walkbook.server.service;
 
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import walkbook.server.dto.CommonResponse;
 import walkbook.server.dto.ListResponse;
@@ -10,8 +9,8 @@ import walkbook.server.dto.user.TokenResponse;
 import java.util.List;
 
 @Service
-@Slf4j
-public class ResponseService {
+public class ResponseServiceImpl implements ResponseService {
+    @Override
     public <T> SingleResponse<T> getSingleResult(T data) {
         SingleResponse<T> result = new SingleResponse<>();
         result.setData(data);
@@ -19,6 +18,7 @@ public class ResponseService {
         return result;
     }
 
+    @Override
     public <T> TokenResponse<T> getTokenResult(T data, String token) {
         TokenResponse<T> result = new TokenResponse<>();
         result.setData(data);
@@ -27,6 +27,7 @@ public class ResponseService {
         return result;
     }
 
+    @Override
     public <T> ListResponse<T> getListResult(List<T> list) {
         ListResponse<T> result = new ListResponse<>();
         result.setData(list);
@@ -34,12 +35,14 @@ public class ResponseService {
         return result;
     }
 
+    @Override
     public CommonResponse getSuccessResult() {
         CommonResponse result = new CommonResponse();
         setSuccessResult(result);
         return result;
     }
 
+    @Override
     public CommonResponse getFailResult(int code, String msg) {
         CommonResponse result = new CommonResponse();
         result.setSuccess(false);
@@ -49,8 +52,8 @@ public class ResponseService {
 
     private void setSuccessResult(CommonResponse result) {
         result.setSuccess(true);
-        result.setCode(walkbook.server.service.response.CommonResponse.SUCCESS.getCode());
-        result.setMsg(walkbook.server.service.response.CommonResponse.SUCCESS.getMsg());
+        result.setCode(ResponseEnum.SUCCESS.getCode());
+        result.setMsg(ResponseEnum.SUCCESS.getMsg());
     }
 
     private void setFailResult(CommonResponse result, int code, String msg) {

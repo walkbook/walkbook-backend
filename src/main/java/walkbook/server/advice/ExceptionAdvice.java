@@ -1,7 +1,6 @@
 package walkbook.server.advice;
 
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.HttpStatus;
@@ -11,15 +10,14 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import walkbook.server.advice.exception.*;
 import walkbook.server.dto.CommonResponse;
-import walkbook.server.service.response.ResponseService;
+import walkbook.server.service.ResponseServiceImpl;
 
 import javax.servlet.http.HttpServletRequest;
 
-@Slf4j
 @RequiredArgsConstructor
 @RestControllerAdvice
 public class ExceptionAdvice {
-    private final ResponseService responseService;
+    private final ResponseServiceImpl responseServiceImpl;
     private final MessageSource messageSource;
 
     /***
@@ -29,7 +27,7 @@ public class ExceptionAdvice {
     @ExceptionHandler(Exception.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     protected CommonResponse defaultException(HttpServletRequest request, Exception e) {
-        return responseService.getFailResult
+        return responseServiceImpl.getFailResult
                 (Integer.parseInt(getMessage("unKnown.code")), getMessage("unKnown.msg"));
     }
 
@@ -40,7 +38,7 @@ public class ExceptionAdvice {
     @ExceptionHandler(CUserNotFoundException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     protected CommonResponse userNotFoundException(HttpServletRequest request, CUserNotFoundException e) {
-        return responseService.getFailResult(
+        return responseServiceImpl.getFailResult(
                 Integer.parseInt(getMessage("userNotFound.code")), getMessage("userNotFound.msg")
         );
     }
@@ -52,7 +50,7 @@ public class ExceptionAdvice {
     @ExceptionHandler(CLoginFailedException.class)
     @ResponseStatus(HttpStatus.CONFLICT)
     protected CommonResponse loginFailedException(HttpServletRequest request, CLoginFailedException e) {
-        return responseService.getFailResult(
+        return responseServiceImpl.getFailResult(
                 Integer.parseInt(getMessage("loginFailed.code")), getMessage("loginFailed.msg")
         );
     }
@@ -64,7 +62,7 @@ public class ExceptionAdvice {
     @ExceptionHandler(CSignupFailedException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     protected CommonResponse signupFailedException(HttpServletRequest request, CSignupFailedException e) {
-        return responseService.getFailResult(
+        return responseServiceImpl.getFailResult(
                 Integer.parseInt(getMessage("signupFailed.code")), getMessage("signupFailed.msg")
         );
     }
@@ -76,7 +74,7 @@ public class ExceptionAdvice {
     @ExceptionHandler(CExpiredAccessTokenException.class)
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
     protected CommonResponse expiredAccessTokenException(HttpServletRequest request, CExpiredAccessTokenException e) {
-        return responseService.getFailResult(
+        return responseServiceImpl.getFailResult(
                 Integer.parseInt(getMessage("expiredAccessToken.code")), getMessage("expiredAccessToken.msg")
         );
     }
@@ -87,7 +85,7 @@ public class ExceptionAdvice {
     @ExceptionHandler(CAccessTokenException.class)
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
     protected CommonResponse accessTokenException(HttpServletRequest request, CAccessTokenException e) {
-        return responseService.getFailResult(
+        return responseServiceImpl.getFailResult(
                 Integer.parseInt(getMessage("accessToken.code")), getMessage("accessToken.msg")
         );
     }
@@ -99,7 +97,7 @@ public class ExceptionAdvice {
     @ExceptionHandler(AccessDeniedException.class)
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
     protected CommonResponse userDifferentException(HttpServletRequest request, AccessDeniedException e) {
-        return responseService.getFailResult(
+        return responseServiceImpl.getFailResult(
                 Integer.parseInt(getMessage("userAccessDenied.code")), getMessage("userAccessDenied.msg")
         );
     }
@@ -111,7 +109,7 @@ public class ExceptionAdvice {
     @ExceptionHandler(CPostNotFoundException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     protected CommonResponse postNotFoundException(HttpServletRequest request, CPostNotFoundException e) {
-        return responseService.getFailResult(
+        return responseServiceImpl.getFailResult(
                 Integer.parseInt(getMessage("postNotFoundException.code")), getMessage("postNotFoundException.msg")
         );
     }

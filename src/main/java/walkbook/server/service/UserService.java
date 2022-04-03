@@ -1,48 +1,11 @@
 package walkbook.server.service;
 
-import lombok.AllArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import walkbook.server.advice.exception.CUserNotFoundException;
 import walkbook.server.domain.User;
 import walkbook.server.dto.user.UserRequest;
-import walkbook.server.repository.UserRepository;
 
-@Slf4j
-@Service
-@AllArgsConstructor
-public class UserService {
-    private UserRepository userRepository;
-
-    @Transactional(readOnly = true)
-    public User findById(Long id) {
-        return userRepository.findById(id)
-                .orElseThrow(CUserNotFoundException::new);
-    }
-
-    @Transactional(readOnly = true)
-    public User findByUsername(String username) {
-        return userRepository.findByUsername(username)
-                .orElseThrow(CUserNotFoundException::new);
-    }
-
-    @Transactional
-    public User update(UserDetails requestUser, Long id, UserRequest userRequest) {
-        User user = userRepository
-                .findById(id).orElseThrow(CUserNotFoundException::new);
-        checkSameUser(requestUser, user.getUsername());
-        user.setNickname(userRequest.getNickname());
-        user.setLocation(userRequest.getLocation());
-        user.setIntroduction(userRequest.getIntroduction());
-        return user;
-    }
-
-    private void checkSameUser(UserDetails requestUser, String username) {
-        if (!requestUser.getUsername().equals(username)) {
-            throw new AccessDeniedException("수정할 권한이 없습니다.");
-        }
-    }
+public interface UserService {
+    User findById(Long id);
+    User findByUsername(String username);
+    User update(UserDetails requestUser, Long id, UserRequest userRequest);
 }
