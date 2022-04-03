@@ -55,7 +55,7 @@ public class UserTest {
                 .password(passwordEncoder.encode("admin"))
                 .nickname("admin")
                 .gender(Gender.M)
-                .age("20")
+                .age(20)
                 .location("서울시 관악구")
                 .introduction("초기값")
                 .build());
@@ -70,7 +70,7 @@ public class UserTest {
     @Test
     public void 회원가입_성공() throws Exception {
         //given
-        String userRequest = getUserRequest("tester", "tester", "tester", Gender.M, "20", "서울시 용산구", "테스트");
+        String userRequest = getUserRequest("tester", "tester", "tester", Gender.M, 20, "서울시 용산구", "테스트");
         //when
         ResultActions actions = mockMvc.perform(post("/api/user/signup")
                 .content(userRequest)
@@ -87,7 +87,7 @@ public class UserTest {
     @Test
     public void 회원가입_실패_중복회원() throws Exception {
         //given
-        String userRequest = getUserRequest("admin", "admin", "", Gender.M, "", "", "");
+        String userRequest = getUserRequest("admin", "admin", "", Gender.M, 20, "", "");
         //when
         ResultActions actions = mockMvc.perform(post("/api/user/signup")
                 .content(userRequest)
@@ -105,7 +105,7 @@ public class UserTest {
     @Test
     public void 로그인_성공() throws Exception {
         //given
-        String userRequest = getUserRequest("admin", "admin", "", Gender.M, "", "", "");
+        String userRequest = getUserRequest("admin", "admin", "", Gender.M, 20, "", "");
 
         //when
         ResultActions actions = mockMvc.perform(post("/api/user/signin")
@@ -123,7 +123,7 @@ public class UserTest {
     @Test
     public void 로그인_실패() throws Exception {
         //given
-        String object = getUserRequest("tester", "tester", "tester", Gender.M, "20", "서울시 용산구", "테스트");
+        String object = getUserRequest("tester", "tester", "tester", Gender.M, 20, "서울시 용산구", "테스트");
 
         //when
         ResultActions actions = mockMvc.perform(post("/api/user/signin")
@@ -177,7 +177,7 @@ public class UserTest {
         SecurityContextHolder.getContext().setAuthentication(authentication);
         final String token = jwtTokenUtil.generateToken(authentication);
 
-        String userRequest = getUserRequest("tester", "tester", "tester", Gender.M, "20", "서울시 용산구", "테스트");
+        String userRequest = getUserRequest("tester", "tester", "tester", Gender.M, 20, "서울시 용산구", "테스트");
 
         //when
         ResultActions actions = mockMvc.perform(put("/api/user/{userId}", userId)
@@ -199,7 +199,7 @@ public class UserTest {
     @Test
     public void 회원정보수정_실패_권한없음() throws Exception {
         //given
-        String userRequest = getUserRequest("tester", "tester", "tester", Gender.M, "20", "서울시 용산구", "테스트");
+        String userRequest = getUserRequest("tester", "tester", "tester", Gender.M, 20, "서울시 용산구", "테스트");
 
         //when
         ResultActions actions = mockMvc.perform(put("/api/user/{userId}", userId)
@@ -213,7 +213,7 @@ public class UserTest {
                 .andExpect(status().isUnauthorized());
     }
 
-    private String getUserRequest(String username, String password, String nickname, Gender gender, String age, String location, String introduction) throws JsonProcessingException {
+    private String getUserRequest(String username, String password, String nickname, Gender gender, int age, String location, String introduction) throws JsonProcessingException {
         return objectMapper.writeValueAsString(UserRequest.builder()
                 .username(username)
                 .password(password)
